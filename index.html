@@ -2,6 +2,7 @@
 <html>
 <head>
     <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- Supabase client -->
@@ -430,7 +431,7 @@
         }
 
         .report-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.95rem; }
-        .report-table th, .report-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #21262d; vertical-align: top; }
+        .report-table th, .report-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #21262d; vertical-align: top; background: #161b22; }
         .report-table th { background-color: #1c2128; font-weight: 600; color: #5eead4; cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 1; }
         .report-table th:hover { background-color: #30363d; }
         .report-table tr:hover { background-color: #1c2128; }
@@ -802,11 +803,11 @@
     <div id="toastSnackbar" class="snackbar">This is a snackbar notification!</div>
 
  </div> <div id="reportModal" class="modal">
-    <div class="modal-content" style="width:100%;max-width:100%;height:100vh;max-height:100vh;margin:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:#161b22;overflow-x:hidden;">
+    <div class="modal-content" style="width:100%;max-width:100%;height:100vh;max-height:100vh;margin:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:#161b22;overflow:hidden;">
         <div style="text-align:right;padding:8px 16px 0;flex:0 0 auto;">
             <span class="close-btn" onclick="closeReportModal()">&times;</span>
         </div>
-        <div class="group-box" style="border-top:1px solid #21262d;border-bottom:1px solid #21262d;padding:10px 14px;flex:0 0 auto;max-height:30vh;overflow-y:auto;">
+        <div class="group-box" style="border-top:1px solid #21262d;border-bottom:1px solid #21262d;padding:10px 14px;flex-shrink:0;">
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
                 <button id="shareBtn" class="btn-share" onclick="copyReportToClipboard()" style="margin-top:0;flex:1;min-width:80px;padding:10px;font-size:0.8rem;">
                     Copy Report 📋
