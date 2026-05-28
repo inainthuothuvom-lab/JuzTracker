@@ -450,6 +450,10 @@
         .juz-info-block .ta-val { font-size: 0.85rem; color: #c9d1d9; display: block; }
 
         .badge { display: inline-block; padding: 5px 12px; border-radius: 14px; font-size: 0.8rem; font-weight: 600; text-align: center; }
+        .badge-completed { background-color: #0f3320; color: #3fb950; }
+        .badge-progress { background-color: #1c2d35; color: #5eead4; }
+        .badge-exception { background-color: #3b1818; color: #f87171; }
+        .badge-default { background-color: #1c2128; color: #8b949e; }
 
         .date-logged { display: block; font-size: 0.7rem; color: #8b949e; margin-top: 5px; line-height: 1.2; }
 
@@ -1368,14 +1372,21 @@
                         return;
                     }
                     // Get Juz details from members by sequence
-                    _supabase.from('members').select('sequence,juz_ar,juz_en,juz_ta').order('sequence', { ascending: true }).then(function(rJuz) {
+                    _supabase.from('members').select('id,sequence,name_en,name_ta,juz_ar,juz_en,juz_ta').order('sequence', { ascending: true }).then(function(rJuz) {
                         var juzMap = {};
-                        if (rJuz.data) rJuz.data.forEach(function(j) { juzMap[j.sequence] = { arabic: j.juz_ar||'', english: j.juz_en||'', tamil: j.juz_ta||'' }; });
+                        var nameMap = {};
+                        if (rJuz.data) rJuz.data.forEach(function(j) { 
+                            juzMap[j.sequence] = { arabic: j.juz_ar||'', english: j.juz_en||'', tamil: j.juz_ta||'' }; 
+                            nameMap[j.id] = { en: j.name_en||'', ta: j.name_ta||'' };
+                        });
                         var reportList = [];
                         rStat.data.forEach(function(s) {
                             var uid = s.member_id; var juzNum = String(s.juz_number);
                             var jDetails = juzMap[s.juz_number] || { arabic: '', english: '', tamil: '' };
-                            var displayName = s.member_name || ('User ' + uid);
+                            var memberInfo = nameMap[uid] || {};
+                            var enName = memberInfo.en || s.member_name || '';
+                            var taName = memberInfo.ta || '';
+                            var displayName = enName + ' | ' + taName;
                             reportList.push({
                                 userId: uid, name: displayName, juzNum: juzNum,
                                 juzAr: jDetails.arabic, juzEn: jDetails.english, juzTa: jDetails.tamil,
