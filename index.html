@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- Supabase client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const SUPABASE_URL = 'https://ylxuwsxgtqyqxutgouik.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_jYlMjdj7klfJoD4CFvcpnQ_DC2qcGZQ';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0d1117;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            background: #161b22;
+            padding: 32px;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            width: 92%;
+            max-width: 480px;
+            margin: 20px 0;
+            position: relative;
+            box-sizing: border-box;
+            border: 1px solid #30363d;
+        }
+
+        .hadiya-note-title {
+            color: #5eead4;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            color: #e6edf3;
+            text-align: center;
+            margin-bottom: 28px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            border-bottom: 2px solid #21262d;
+            padding-bottom: 14px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+        label {
+            font-size: 0.95rem;
+            color: #c9d1d9;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #30363d;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
+            font-family: inherit;
+            background: #0d1117;
+            color: #e6edf3;
+        }
+        select option {
+            background: #161b22;
+            color: #e6edf3;
+        }
+        select:focus, input:focus, textarea:focus {
+            border-color: #5eead4;
+            box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.15);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            background: #115e59;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: background 0.3s, transform 0.1s;
+            line-height: 1.4;
+        }
+        button:hover { background: #0f766e; }
+        button:focus { background: #0f766e; color: #ffffff; outline: 2px solid #5eead4; outline-offset: 2px; }
+        button:active { transform: scale(0.98); }
+        button:disabled { background: #30363d; cursor: not-allowed; color: #8b949e; }
+
+        .btn-secondary { background: #21262d; color: #e6edf3; }
+        .btn-secondary:hover { background: #30363d; }
+        .btn-secondary:focus { background: #30363d; color: #e6edf3; outline: 2px solid #8b949e; outline-offset: 2px; }
+
+        #loader {
+            display: none;
+            text-align: center;
+            margin: 22px 0;
+            color: #5eead4;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        #result {
+            display: none;
+            margin-top: 28px;
+            border-top: 2px solid #21262d;
+            padding-top: 22px;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .juz-badge {
+            background: #1c2d35;
+            color: #5eead4;
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        .data-row { margin-bottom: 16px; }
+        .val-arabic {
+            font-size: 1.8rem;
+            color: #a5b4fc;
+            direction: rtl;
+            display: block;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+        .val-eng { font-size: 1.2rem; color: #5eead4; font-weight: 600; display: block; }
+        .val-tam { font-size: 1.1rem; color: #c9d1d9; display: block; }
+        .error { color: #f87171; background: #3b1818; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: 600; }
+
+        .hadiya-container {
+            background: #1c2128;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 22px;
+            border: 1px solid #2ea043;
+            box-shadow: inset 0 1px 4px rgba(46, 160, 67, 0.08);
+            position: relative;
+            transition: opacity 0.3s;
+        }
+        .hadiya-container.hadiya-loading {
+            opacity: 0.35;
+            pointer-events: none;
+            border-color: #484f58;
+        }
+        .hadiya-container.hadiya-loading::after {
+            content: 'Loading… / நிலை மாறுகிறது';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0d1117;
+            color: #8b949e;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        .hadiya-title {
+            font-size: 0.75rem;
+            color: #7ee787;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .hadiya-main {
+            font-size: 1.15rem;
+            color: #e6edf3;
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .hadiya-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top: 1px solid #2ea043;
+            margin-top: 12px;
+            padding-top: 10px;
+        }
+        .small-hadiya { font-size: 0.8rem; color: #8b949e; }
+        .small-hadiya b { display: block; color: #c9d1d9; }
+
+        .status-box {
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 22px;
+            position: relative;
+            transition: all 0.3s ease;
+            border: 1.5px solid #30363d;
+            background-color: #161b22;
+            box-sizing: border-box;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .status-box.state-progress { background-color: #1c2d35; border-color: #2dd4bf; }
+        .status-box.state-completed { background-color: #0f3320; border-color: #2ea043; color: #e6edf3; }
+        .status-box.state-exception { background-color: #3b1818; border-color: #f85149; color: #e6edf3; }
+
+        .status-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .status-box h3 { margin: 0; font-size: 1.05rem; color: #c9d1d9; }
+        .status-box.state-progress h3 { color: #e6edf3; }
+        .status-box.state-completed h3, .status-box.state-exception h3 { color: #e6edf3; }
+
+        .btn-unlock, .btn-close-edit, .btn-unlock-support, .btn-close-support-edit {
+            background: none !important;
+            border: none !important;
+            color: #5eead4 !important;
+            font-size: 0.9rem !important;
+            cursor: pointer !important;
+            text-decoration: underline !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-family: inherit !important;
+            font-weight: 600 !important;
+            display: none;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        .btn-unlock:hover, .btn-close-edit:hover, .btn-unlock-support:hover, .btn-close-support-edit:hover { color: #99f6e4 !important; text-decoration: underline !important; background: none !important; }
+
+        .status-box.state-completed .btn-unlock, .status-box.state-exception .btn-unlock,
+        .status-box.state-completed .btn-close-edit, .status-box.state-exception .btn-close-edit { color: #e6edf3 !important; }
+        .status-box.state-completed .btn-unlock:hover, .status-box.state-exception .btn-unlock:hover,
+        .status-box.state-completed .btn-close-edit:hover, .status-box.state-exception .btn-close-edit:hover { color: #8b949e !important; }
+
+        .btn-unlock-support, .btn-close-support-edit { color: #e6edf3 !important; }
+        .btn-unlock-support:hover, .btn-close-support-edit:hover { color: #f0e6b3 !important; }
+
+        .status-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .status-buttons-container button {
+            flex: 1 1 130px;
+            min-height: 58px;
+            margin-top: 0 !important;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .btn-status-completed {
+            background-color: #238636;
+            font-size: 0.9rem;
+            padding: 12px 10px;
+            line-height: 1.3;
+            flex: 1 1 100% !important;
+        }
+        .btn-status-completed:hover { background-color: #2ea043; }
+        .btn-status-completed:focus { background-color: #2ea043; color: #ffffff; outline: 2px solid #3fb950; outline-offset: 2px; }
+
+        .btn-status-reciting { background-color: #115e59; font-size: 0.9rem; padding: 12px 10px; line-height: 1.3; }
+        .btn-status-reciting:hover { background-color: #0f766e; }
+        .btn-status-reciting:focus { background-color: #0f766e; color: #ffffff; outline: 2px solid #5eead4; outline-offset: 2px; }
+
+        .btn-status-exception { background-color: #da3633; font-size: 0.9rem; padding: 12px 10px; line-height: 1.3; }
+        .btn-status-exception:hover { background-color: #f85149; }
+        .btn-status-exception:focus { background-color: #f85149; color: #ffffff; outline: 2px solid #f87171; outline-offset: 2px; }
+
+        .status-display-banner { display: none; font-size: 1.2rem; font-weight: 600; line-height: 1.4; margin-top: 6px; word-break: break-word; color: #e6edf3; }
+
+        .future-lock-banner { display: none; background: #1c2128; border: 1.5px dashed #d29922; color: #d29922; border-radius: 8px; padding: 14px; font-size: 0.9rem; font-weight: 600; text-align: center; margin-top: 12px; line-height: 1.5; }
+
+        .last-modified-lbl { font-size: 0.8rem; color: #8b949e; font-style: italic; display: block; margin-top: 12px; line-height: 1.3; word-break: break-all; }
+        .status-box.state-completed .last-modified-lbl, .status-box.state-exception .last-modified-lbl { color: #8b949e; }
+
+        .support-info-widget {
+            display: none;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            border-left: 3px solid #d29922;
+            color: #e6edf3;
+            box-sizing: border-box;
+            word-wrap: break-word;
+            width: 100%;
+        }
+        .support-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+        .support-info-widget label { color: #e6edf3; font-size: 0.8rem; opacity: 0.9; margin: 0; display: block; }
+
+        .support-buttons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .support-buttons-grid button {
+            flex: 1 1 120px;
+            min-height: 50px;
+            margin-top: 0 !important;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .btn-support-status-completed { background-color: #238636; color: white; border-radius: 8px; padding: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; border: none; transition: background 0.2s; text-align: center; }
+        .btn-support-status-completed:hover { background-color: #2ea043; }
+        .btn-support-status-reciting { background-color: #115e59; color: white; border-radius: 8px; padding: 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; border: none; transition: background 0.2s; text-align: center; }
+        .btn-support-status-reciting:hover { background-color: #0f766e; }
+
+        .snackbar {
+            visibility: hidden;
+            min-width: 280px;
+            background-color: #21262d;
+            color: #e6edf3;
+            text-align: center;
+            border-radius: 10px;
+            padding: 14px 20px;
+            position: absolute;
+            z-index: 2000;
+            left: 50%;
+            bottom: 15px;
+            transform: translate(-50%, 0);
+            font-size: 0.95rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+            opacity: 0;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+        .snackbar.show { visibility: visible; opacity: 1; }
+        .snackbar-success { background-color: #238636; }
+        .snackbar-error { background-color: #da3633; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); overflow-y: auto; align-items: center; justify-content: center; }
+        .modal-content { background-color: #161b22; margin: 20px auto; padding: 28px; border-radius: 18px; width: 95%; max-width: 680px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); animation: zoomIn 0.3s; box-sizing: border-box; border: 1px solid #30363d; }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #21262d; padding-bottom: 16px; margin-bottom: 16px; }
+        .modal-title { font-size: 1.2rem; font-weight: 600; color: #5eead4; display: flex; align-items: center; gap: 10px; }
+        .close-btn { font-size: 2rem; font-weight: bold; color: #8b949e; cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: #e6edf3; }
+
+        .report-count-badge { background-color: #1c2d35; color: #5eead4; font-size: 0.85rem; font-weight: 600; padding: 5px 12px; border-radius: 14px; display: inline-block; }
+
+        .reassign-modal-content { max-width: 450px; background-color: #161b22; padding: 32px; border-radius: 18px; text-align: left; border: 1px solid #30363d; }
+        .reassign-meta-info { background: #1c2128; border-left: 4px solid #2ea043; padding: 14px; font-size: 0.9rem; color: #c9d1d9; line-height: 1.5; margin-bottom: 16px; border-radius: 0 10px 10px 0; }
+
+        .report-controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .searchable-select-container { position: relative; width: 100%; }
+        .search-input { width: 100%; padding: 14px; border: 2px solid #30363d; border-radius: 10px; font-size: 1.05rem; background: #0d1117; color: #e6edf3; font-family: inherit; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s; }
+        .search-input:focus { border-color: #5eead4; box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.15); outline: none; }
+        .searchable-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #161b22; border: 2px solid #30363d; border-top: none; border-radius: 0 0 10px 10px; max-height: 220px; overflow-y: auto; z-index: 1000; display: none; }
+        .searchable-dropdown .opt { padding: 12px 14px; cursor: pointer; color: #c9d1d9; font-size: 0.95rem; border-bottom: 1px solid #21262d; transition: background 0.15s; }
+        .searchable-dropdown .opt:hover { background: #1c2d35; color: #5eead4; }
+        .searchable-dropdown .opt.no-match { color: #8b949e; cursor: default; text-align: center; }
+        .searchable-dropdown .opt.selected { background: #115e59; color: #e6edf3; }
+
+        .time-toggle-btn { background: none; border: 1.5px solid #30363d; border-radius: 8px; color: #8b949e; font-size: 0.85rem; padding: 6px 12px; cursor: pointer; transition: all 0.2s; margin-top: 0; width: auto; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-weight: 600; }
+        .time-toggle-btn:hover { border-color: #5eead4; color: #5eead4; background: #1c2d35; }
+        .time-toggle-btn.active { border-color: #d29922; color: #d29922; background: #1c2128; }
+        .time-picker-row { display: none; margin-top: 8px; padding: 10px; background: #1c2128; border-radius: 10px; border: 1px solid #30363d; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .time-picker-row input[type="datetime-local"] { flex: 1; min-width: 200px; padding: 10px; border: 2px solid #30363d; border-radius: 8px; font-size: 0.9rem; background: #0d1117; color: #e6edf3; font-family: inherit; box-sizing: border-box; }
+        .time-picker-row input[type="datetime-local"]:focus { border-color: #5eead4; outline: none; }
+        .time-reset-btn { background: #21262d; border: none; border-radius: 8px; color: #c9d1d9; font-size: 0.8rem; padding: 10px 14px; cursor: pointer; font-family: inherit; font-weight: 600; white-space: nowrap; margin-top: 0; width: auto; transition: background 0.2s; }
+        .time-reset-btn:hover { background: #30363d; color: #5eead4; }
+
+        .btn-share { background: #238636; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 0; padding: 12px; font-size: 0.9rem; color: #ffffff; }
+        .btn-share:hover { background: #2ea043; }
+        .btn-share:focus { background: #2ea043; color: #ffffff; outline: 2px solid #3fb950; outline-offset: 2px; }
+        .btn-hadiya-share { background: #9d6b00; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 0; padding: 12px; font-size: 0.9rem; color: #ffffff; }
+        .btn-hadiya-share:hover { background: #bb8009; }
+        .btn-hadiya-share:focus { background: #bb8009; color: #ffffff; outline: 2px solid #d29922; outline-offset: 2px; }
+
+        @media (max-width: 600px) {
+            .modal-content { padding: 12px; }
+            #reportCaptureArea { padding: 8px 0 !important; }
+            .report-table th, .report-table td { padding: 4px 5px; font-size: 0.65rem; }
+            .juz-info-block .ar-val { font-size: 0.7rem; }
+            .juz-info-block .en-val, .juz-info-block .ta-val { font-size: 0.55rem; }
+            .juz-info-block .num-badge { font-size: 0.5rem; padding: 2px 4px; }
+            .name-cell { font-size: 0.65rem; }
+            .name-cell span { font-size: 0.55rem; }
+            .badge { font-size: 0.5rem; padding: 2px 5px; }
+            .date-logged { font-size: 0.45rem; }
+        }
+
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.95rem; }
+        .report-table th, .report-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #21262d; vertical-align: top; }
+        .report-table th { background-color: #1c2128; font-weight: 600; color: #5eead4; cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 1; }
+        .report-table th:hover { background-color: #30363d; }
+        .report-table tr:hover { background-color: #1c2128; }
+        .sort-indicator { font-size: 0.75rem; margin-left: 4px; color: #8b949e; }
+        .sort-indicator.active { color: #5eead4; }
+
+        .name-cell { font-weight: 600; color: #e6edf3; line-height: 1.4; }
+        .name-cell span { font-size: 0.85rem; font-weight: normal; color: #8b949e; display: block; margin-top: 2px; }
+
+        .juz-info-block { line-height: 1.4; padding-left: 8px; }
+        .juz-info-block .num-badge { background: #1c2d35; color: #5eead4; font-weight: 600; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+        .juz-info-block .ar-val { font-size: 1.05rem; font-weight: 600; color: #a5b4fc; display: block; }
+        .juz-info-block .en-val { font-size: 0.85rem; color: #5eead4; display: block; }
+        .juz-info-block .ta-val { font-size: 0.85rem; color: #c9d1d9; display: block; }
+
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 14px; font-size: 0.8rem; font-weight: 600; text-align: center; }
+
+        .date-logged { display: block; font-size: 0.7rem; color: #8b949e; margin-top: 5px; line-height: 1.2; }
+
+        .filter-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; min-width: 0; }
+        .filter-btn { padding: 8px 6px; border: 2px solid #30363d; border-radius: 12px; background: #0d1117; color: #c9d1d9; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; line-height: 1.3; box-sizing: border-box; word-break: break-word; overflow: hidden; min-width: 0; }
+        .filter-btn:hover { border-color: #5eead4; background: #1c2d35; color: #5eead4; }
+        .filter-btn:focus { border-color: #5eead4; background: #1c2d35; color: #5eead4; outline: 2px solid #5eead4; outline-offset: 2px; }
+        .filter-btn.active { background: #115e59; color: #e6edf3; border-color: #2dd4bf; }
+        .filter-btn.active:focus { outline: 2px solid rgba(94, 234, 212, 0.5); outline-offset: 2px; }
+        .filter-btn[data-filter="ALL"] { border-color: #30363d; color: #c9d1d9; }
+        .filter-btn[data-filter="ALL"]:hover, .filter-btn[data-filter="ALL"]:focus { border-color: #5eead4; background: #1c2d35; color: #5eead4; }
+        .filter-btn[data-filter="ALL"].active { background: #115e59; color: #e6edf3; border-color: #2dd4bf; }
+        .filter-btn[data-filter="Completed"] { border-color: #2ea043; color: #3fb950; }
+        .filter-btn[data-filter="Completed"]:hover, .filter-btn[data-filter="Completed"]:focus { border-color: #3fb950; background: #0f3320; color: #3fb950; }
+        .filter-btn[data-filter="Completed"].active { background: #238636; color: #ffffff; border-color: #2ea043; }
+        .filter-btn[data-filter="Reciting"] { border-color: #2dd4bf; color: #5eead4; }
+        .filter-btn[data-filter="Reciting"]:hover, .filter-btn[data-filter="Reciting"]:focus { border-color: #5eead4; background: #1c2d35; color: #5eead4; }
+        .filter-btn[data-filter="Reciting"].active { background: #115e59; color: #ffffff; border-color: #2dd4bf; }
+        .filter-btn[data-filter="EXCEPTION_ALL"] { border-color: #da3633; color: #f87171; }
+        .filter-btn[data-filter="EXCEPTION_ALL"]:hover, .filter-btn[data-filter="EXCEPTION_ALL"]:focus { border-color: #f85149; background: #3b1818; color: #f87171; }
+        .filter-btn[data-filter="EXCEPTION_ALL"].active { background: #da3633; color: #ffffff; border-color: #f85149; }
+
+        .report-status-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .btn-sm-status { padding: 4px 10px; border: none; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: opacity 0.15s; font-family: inherit; line-height: 1.6; }
+        .btn-sm-status:hover { opacity: 0.75; }
+        .btn-sm-status:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-sm-completed { background: #0f3320; color: #3fb950; }
+        .btn-sm-reciting { background: #1c2d35; color: #5eead4; }
+        .btn-sm-exception { background: #3b1818; color: #f87171; }
+
+        .hadiya-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .hadiya-edit-btn { font-size: 0.75rem; color: #5eead4; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; margin-left: 8px; }
+        .hadiya-edit-btn:hover { text-decoration: underline; }
+        .hadiya-nav-arrow { font-size: 1rem; color: #7ee787; font-weight: bold; cursor: pointer; text-decoration: none; padding: 0 6px; user-select: none; }
+        .hadiya-nav-arrow:hover { color: #2ea043; }
+        .hadiya-name-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; }
+        .hadiya-name-col { flex: 1; min-width: 0; }
+        .hadiya-counter-col { text-align: center; background: #1c2128; border-radius: 10px; padding: 6px 12px; flex-shrink: 0; min-width: 100px; border: 1px solid #30363d; }
+        .counter-days { font-size: 0.65rem; font-weight: 600; color: #5eead4; line-height: 1.2; }
+        .counter-hms { font-size: 1.1rem; font-weight: 700; color: #f87171; font-family: 'Courier New', monospace; line-height: 1.2; margin-top: 3px; }
+
+        .report-search { width: 100%; padding: 10px 14px; border: 2px solid #30363d; border-radius: 10px; font-size: 0.9rem; background: #0d1117; color: #e6edf3; font-family: inherit; box-sizing: border-box; margin-bottom: 8px; }
+        .report-search:focus { border-color: #5eead4; outline: none; }
+        .bulk-panel { display: none; background: #1c2128; border: 1px solid #30363d; border-radius: 10px; padding: 10px 12px; margin-top: 8px; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .bulk-panel label { color: #c9d1d9; font-size: 0.85rem; font-weight: 600; }
+        .bulk-panel select, .bulk-panel input { padding: 8px 10px; border: 2px solid #30363d; border-radius: 8px; font-size: 0.85rem; background: #0d1117; color: #e6edf3; font-family: inherit; }
+        .bulk-panel select:focus, .bulk-panel input:focus { border-color: #5eead4; outline: none; }
+        .btn-bulk-apply { background: #238636; border: none; border-radius: 8px; color: #fff; font-size: 0.85rem; font-weight: 600; padding: 8px 16px; cursor: pointer; font-family: inherit; margin-top: 0; width: auto; }
+        .btn-bulk-apply:hover { background: #2ea043; }
+        .btn-bulk-apply:disabled { background: #30363d; cursor: not-allowed; }
+        .bulk-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #2ea043; margin: 0; vertical-align: middle; }
+        .bulk-checkbox-cell { width: 32px; min-width: 32px; text-align: center; padding: 4px !important; }
+        .btn-bulk-toggle { background: #21262d; border: 2px solid #30363d; border-radius: 8px; color: #c9d1d9; font-size: 0.8rem; font-weight: 600; padding: 8px 12px; cursor: pointer; font-family: inherit; margin-top: 0; width: auto; transition: all 0.2s; }
+        .btn-bulk-toggle:hover { border-color: #d29922; color: #d29922; }
+        .btn-bulk-toggle.active { background: #2d1f00; border-color: #d29922; color: #d29922; }
+
+        @media (max-width: 600px) {
+            body { padding: 0; }
+            .container {
+                width: 98%;
+                max-width: none;
+                padding: 18px 14px;
+                border-radius: 14px;
+                margin: 8px 0;
+            }
+            .hadiya-container {
+                padding: 14px;
+                margin-bottom: 16px;
+            }
+            .hadiya-grid {
+                border-top: none;
+                margin-top: 8px;
+                padding-top: 0;
+                gap: 8px;
+            }
+            .modal-content { width: 100%; max-width: 100%; padding: 12px; }
+            #reportModal,
+            #reportModal * { max-width: 100%; }
+            #reportModal .modal-content {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            #reportModal .group-box { padding: 8px 6px !important; }
+            #reportModal button,
+            #reportModal select,
+            #reportModal input { font-size: clamp(0.52rem, 2.35vw, 0.72rem) !important; }
+            #reportModal button { padding: 7px 6px !important; min-width: 0 !important; line-height: 1.18; }
+            #reportCaptureArea { padding: 8px 4px 10px !important; min-width: 0; overflow-x: hidden !important; }
+            #reportTableWrapper {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                overflow-x: hidden !important;
+                border: 1px solid #30363d;
+                border-radius: 8px;
+                background: #111820;
+            }
+            .modal-header { gap: 4px; min-width: 0; margin-bottom: 8px; padding-bottom: 8px; }
+            .modal-title { min-width: 0; flex-wrap: wrap; gap: 3px; font-size: clamp(0.58rem, 2.55vw, 0.82rem); line-height: 1.2; }
+            .report-count-badge { font-size: clamp(0.42rem, 1.9vw, 0.58rem); padding: 2px 5px; }
+            .report-controls { grid-template-columns: minmax(0, 1fr); gap: 6px; margin-bottom: 8px; }
+            .filter-buttons { gap: 4px; }
+            .filter-btn { padding: 5px 3px; font-size: clamp(0.42rem, 1.9vw, 0.56rem); border-radius: 7px; line-height: 1.15; }
+            .report-search { padding: 7px 8px; font-size: clamp(0.5rem, 2.2vw, 0.66rem); }
+            .report-table {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                table-layout: fixed;
+                margin-top: 0;
+                font-size: clamp(0.56rem, 2.28vw, 0.76rem);
+            }
+            .report-table th,
+            .report-table td {
+                min-width: 0;
+                padding: 7px 5px;
+                line-height: 1.24;
+                overflow-wrap: anywhere;
+                word-break: normal;
+                overflow: hidden;
+            }
+            .report-table th:nth-child(2),
+            .report-name-col { width: 43% !important; }
+            .report-table th:nth-child(3),
+            .report-juz-col { width: 35% !important; padding-left: 4px !important; padding-right: 4px !important; }
+            .report-table th:nth-child(4),
+            .report-status-col { width: 22% !important; }
+            .report-status-col {
+                position: relative;
+                padding-right: 18px !important;
+            }
+            .report-table th:nth-child(3) { text-align: left; }
+            .report-table td.report-juz-col,
+            .report-juz-col .juz-info-block { text-align: left; }
+            .juz-info-block .num-badge,
+            .juz-info-block .ar-val,
+            .juz-info-block .en-val,
+            .juz-info-block .ta-val {
+                margin-left: 0;
+                margin-right: 0;
+                text-align: left;
+            }
+            .report-table th { font-size: clamp(0.56rem, 2.28vw, 0.74rem); }
+            .name-cell {
+                font-size: clamp(0.62rem, 2.48vw, 0.82rem);
+                line-height: 1.22;
+                overflow-wrap: anywhere;
+            }
+            .name-cell span { font-size: clamp(0.52rem, 2.08vw, 0.68rem); }
+            .juz-info-block { padding-left: 0; line-height: 1.2; }
+            .juz-info-block .num-badge { font-size: clamp(0.52rem, 2.08vw, 0.68rem); padding: 2px 5px; margin-bottom: 2px; }
+            .juz-info-block .ar-val { font-size: clamp(0.68rem, 2.65vw, 0.88rem); }
+            .juz-info-block .en-val,
+            .juz-info-block .ta-val { font-size: clamp(0.5rem, 2.02vw, 0.66rem); }
+            .badge {
+                display: inline-block;
+                max-width: 100%;
+                font-size: clamp(0.44rem, 1.75vw, 0.6rem);
+                padding: 2px 5px;
+                border-radius: 6px;
+                line-height: 1.2;
+                white-space: nowrap;
+            }
+            .date-logged {
+                font-size: clamp(0.44rem, 1.75vw, 0.6rem);
+                overflow-wrap: anywhere;
+                margin-top: 3px;
+            }
+            .date-logged .date-line,
+            .date-logged .time-line {
+                display: block;
+                white-space: nowrap;
+            }
+            .bulk-checkbox-cell {
+                width: clamp(16px, 5.5vw, 22px);
+                min-width: clamp(16px, 5.5vw, 22px);
+                padding: 1px !important;
+            }
+            .bulk-checkbox { width: 12px; height: 12px; }
+            .report-time-edit {
+                position: absolute;
+                right: 4px;
+                top: 50%;
+                transform: translateY(-50%);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0.62;
+            }
+            .report-time-edit svg { width: 13px; height: 13px; stroke: #8b949e !important; }
+            .report-status-col a { font-size: clamp(0.38rem, 1.5vw, 0.5rem) !important; }
+        }
+
+        @media (max-width: 420px) {
+            #reportModal .group-box { padding-left: 4px !important; padding-right: 4px !important; }
+            #reportCaptureArea { padding-left: 5px !important; padding-right: 5px !important; }
+            .report-table { font-size: clamp(0.52rem, 2.12vw, 0.7rem); }
+            .report-table th,
+            .report-table td { padding: 6px 4px; }
+            .modal-title { font-size: clamp(0.52rem, 2.4vw, 0.74rem); }
+            .filter-btn { font-size: clamp(0.36rem, 1.75vw, 0.5rem); }
+            .name-cell { font-size: clamp(0.58rem, 2.32vw, 0.76rem); }
+            .name-cell span,
+            .juz-info-block .en-val,
+            .juz-info-block .ta-val { font-size: clamp(0.46rem, 1.86vw, 0.62rem); }
+            .juz-info-block .ar-val { font-size: clamp(0.62rem, 2.4vw, 0.8rem); }
+            .badge,
+            .date-logged { font-size: clamp(0.42rem, 1.65vw, 0.56rem); }
+        }
+
+        .confirm-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .confirm-box { background: #161b22; border: 1px solid #30363d; border-radius: 18px; padding: 24px; max-width: 420px; width: 90%; max-height: 70vh; overflow-y: auto; }
+        .confirm-box h3 { color: #d29922; font-size: 1.05rem; margin: 0 0 12px; font-weight: 600; }
+        .confirm-box .confirm-list { background: #0d1117; border-radius: 8px; padding: 10px 14px; margin: 10px 0; font-size: 0.85rem; color: #c9d1d9; max-height: 180px; overflow-y: auto; line-height: 1.6; }
+        .confirm-box .confirm-actions { display: flex; gap: 8px; margin-top: 14px; }
+        .confirm-box .confirm-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 0; }
+        .btn-confirm-yes { background: #238636; color: #fff; }
+        .btn-confirm-yes:hover { background: #2ea043; }
+        .btn-confirm-no { background: #21262d; color: #c9d1d9; }
+        .btn-confirm-no:hover { background: #30363d; }
+    </style>
+</head>
+<body>
+
+
+<div class="container">
+    <div class="hadiya-note-title">Inainthu Othuvom</div>
+    <h2>இனைந்து ஓதுவோம்</h2>
+    
+    <div class="hadiya-container" id="hadiyaBox" style="display:none;">
+        <span class="hadiya-title">This Week's Hadiya <br> இந்த வார ஹதியா</span>
+        <div id="hadCurrent" class="hadiya-main">Loading...</div>
+        
+        <div class="hadiya-grid">
+            <div class="small-hadiya" id="prevSection" style="display:none;">
+                <span class="hadiya-title" style="font-size:0.65rem">Previous Hadiya <br> கடந்த ஹதியா</span>
+                <div id="hadPrev"></div>
+            </div>
+            <div class="small-hadiya" id="nextSection">
+                <span class="hadiya-title" style="font-size:0.65rem">Next Hadiya <br> அடுத்த ஹதியா</span>
+                <div id="hadNext"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Selected Date <br> தேதியைத் தேர்ந்தெடுக்கவும்</label>
+        <input type="date" id="dateInput">
+    </div>
+
+    <div class="form-group">
+        <label>Select Name <br> பெயரைத் தேர்ந்தெடுக்கவும்</label>
+        <div class="searchable-select-container">
+            <input type="text" id="userSearch" class="search-input" placeholder="Type to search..." autocomplete="off" onfocus="openUserDropdown()" oninput="filterUserOptions()" onblur="setTimeout(closeUserDropdown, 200)" value="">
+            <div class="searchable-dropdown" id="userDropdown"></div>
+            <input type="hidden" id="userSelect" value="">
+        </div>
+    </div>
+
+    <button id="submitBtn" onclick="submitQuery()" disabled>
+        Show My Assignment <br> எனது ஜுஸைக் காட்டு
+    </button>
+
+    <button id="reportBtn" class="btn-secondary" onclick="openReportModal()">
+        View Weekly Report <br> வாராந்திர அறிக்கை
+    </button>
+    
+    <div id="loader">Fetching data...</div>
+
+    <div id="result">
+        <div id="weekInfo" class="juz-badge"></div>
+        
+        <div class="data-row">
+            <label>Arabic / உருது</label>
+            <span id="resAr" class="val-arabic"></span>
+        </div>
+
+        <div class="data-row">
+            <label>English / ஆங்கிலம்</label>
+            <span id="resEn" class="val-eng"></span>
+        </div>
+
+        <div class="data-row">
+            <label>Tamil / தமிழ்</label>
+            <span id="resTa" class="val-tam"></span>
+        </div>
+
+        <div class="status-box" id="statusBoxContainer">
+            <div class="status-header">
+                <h3>Status <br> நிலை</h3>
+                <div>
+                    <button class="btn-unlock" id="unlockBtn" onclick="enableStatusEditing()">Edit</button>
+                    <button class="btn-close-edit" id="closeEditBtn" onclick="cancelStatusEditing()">Close / ரத்து செய்</button>
+                </div>
+            </div>
+            
+            <div class="status-display-banner" id="statusTextDisplay"></div>
+            
+            <div class="support-info-widget" id="mainSupportWidget">
+                <div class="support-header-row">
+                    <div id="supportDetailsBanner"></div>
+                    <div>
+                        <button class="btn-unlock-support" id="unlockSupportBtn" onclick="enableSupportStatusEditing()">Edit Support</button>
+                        <button class="btn-close-support-edit" id="closeSupportEditBtn" onclick="cancelSupportStatusEditing()">Close / ரத்து செய்</button>
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:4px;">
+                    <button class="time-toggle-btn" id="supportTimeToggle" onclick="toggleTimePicker('support')" style="display:none">⏱ Set Time / நேரம்</button>
+                </div>
+                <div class="time-picker-row" id="supportTimePickerRow">
+                    <input type="datetime-local" id="supportCustomTime">
+                    <button class="time-reset-btn" onclick="resetCustomTime('support')">Now / இப்போது</button>
+                </div>
+                <div class="support-buttons-grid" id="supportButtonsGroup" style="display: none;">
+                    <button class="btn-support-status-completed" id="supportCompletedBtn" onclick="submitSupportStatusDirect('Completed')">
+                        Completed ✅
+                    </button>
+                    <button class="btn-support-status-reciting" id="supportRecitingBtn" onclick="submitSupportStatusDirect('Reciting')">
+                        Reciting 🔄
+                    </button>
+                </div>
+            </div>
+            
+            <div class="future-lock-banner" id="futureScheduleLockBanner">
+                🔒 Updates are not allowed for future schedules.<br>எதிர்கால தேதிகளுக்கு நிலையை புதுப்பிக்க இயலாது.
+            </div>
+
+            <div style="text-align:right; margin-top:6px;">
+                <button class="time-toggle-btn" id="mainTimeToggle" onclick="toggleTimePicker('main')" style="display:none">⏱ Set Time / நேரம்</button>
+            </div>
+            <div class="time-picker-row" id="mainTimePickerRow">
+                <input type="datetime-local" id="mainCustomTime">
+                <button class="time-reset-btn" onclick="resetCustomTime('main')">Now / இப்போது</button>
+            </div>
+            <div class="status-buttons-container" id="statusButtonsGroup" style="display: none;">
+                <button class="btn-status-completed" id="completedActionBtn" onclick="submitDirectStatus('Completed')">
+                    Completed <br> நிறைவேற்றபட்டது ✓
+                </button>
+                <button class="btn-status-reciting" id="recitingActionBtn" onclick="submitDirectStatus('Reciting')">
+                    Reciting <br> ஓதிக்கொண்டிருக்கிறேன் 🔄
+                </button>
+                <button class="btn-status-exception" id="exceptionActionBtn" onclick="submitDirectStatus('Exception Raised')">
+                    Exception <br> விதிவிலக்கு ⚠️
+                </button>
+            </div>
+            
+            <span id="lastModLabel" class="last-modified-lbl"></span>
+        </div>
+    </div>
+
+    <div id="toastSnackbar" class="snackbar">This is a snackbar notification!</div>
+
+ </div> <div id="reportModal" class="modal">
+    <div class="modal-content" style="width:100%;max-width:100%;height:100vh;max-height:100vh;margin:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:#161b22;overflow-x:hidden;">
+        <div style="text-align:right;padding:8px 16px 0;flex:0 0 auto;">
+            <span class="close-btn" onclick="closeReportModal()">&times;</span>
+        </div>
+        <div class="group-box" style="border-top:1px solid #21262d;border-bottom:1px solid #21262d;padding:10px 14px;flex:0 0 auto;max-height:30vh;overflow-y:auto;">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                <button id="shareBtn" class="btn-share" onclick="copyReportToClipboard()" style="margin-top:0;flex:1;min-width:80px;padding:10px;font-size:0.8rem;">
+                    Copy Report 📋
+                </button>
+                <button id="hadiyaShareBtn" class="btn-hadiya-share" onclick="copyHadiyaNoteToClipboard()" style="margin-top:0;flex:1;min-width:80px;padding:10px;font-size:0.8rem;">
+                    Hadiya Note 📋
+                </button>
+                <button id="searchToggleBtn" onclick="toggleSearchBar()" style="margin-top:0;width:auto;flex:none;background:none;border:2px solid #30363d;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:8px;" title="Search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+                <button id="bulkToggleBtn" class="btn-bulk-toggle" onclick="toggleBulkMode()" style="margin-top:0;flex:0.5;min-width:70px;padding:8px;font-size:0.8rem;">
+                    Bulk ⚡
+                </button>
+            </div>
+            <div class="filter-buttons" id="reportFilterButtons" style="margin-bottom:0;">
+                <button class="filter-btn active" data-filter="ALL" onclick="applyReportFilter('ALL')">All <br> அனைவர்</button>
+                <button class="filter-btn" data-filter="Completed" onclick="applyReportFilter('Completed')">Completed <br> முடித்தவர்</button>
+                <button class="filter-btn" data-filter="Reciting" onclick="applyReportFilter('Reciting')">Reciting <br> ஓதுபவர்</button>
+                <button class="filter-btn" data-filter="EXCEPTION_ALL" onclick="applyReportFilter('EXCEPTION_ALL')">Exception <br> விலக்கு</button>
+            </div>
+            <div class="bulk-panel" id="bulkPanel" style="margin-top:6px;">
+                <button style="background:#21262d;border:none;border-radius:8px;color:#c9d1d9;font-size:0.8rem;font-weight:600;padding:8px 10px;cursor:pointer;font-family:inherit;margin-top:0;width:auto;" onclick="toggleSelectAll()">Select All</button>
+                <button class="btn-bulk-apply" id="bulkApplyBtn" onclick="openBulkStep2()" disabled>Process 0</button>
+            </div>
+        </div>
+        <div id="reportCaptureArea" style="border-top:1px solid #21262d;flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 14px;">
+            <div class="modal-header" style="border-bottom:2px solid #21262d;padding-bottom:12px;margin-bottom:10px;">
+                <span class="modal-title" id="reportTitle">
+                    <span>Week / வாரம்</span>
+                    <span class="report-count-badge" id="reportCountBadge">Showing 0 of 0</span>
+                </span>
+            </div>
+            <input type="text" id="reportSearchInput" class="report-search" placeholder="Search by name / பெயரால் தேட..." oninput="applyReportFilter()" onfocus="scrollReportToResults()" style="display:none;margin-bottom:8px;">
+
+            <div id="reportTableWrapper" style="overflow-x:hidden;">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th class="bulk-checkbox-cell report-bulk-th" style="display:none;width:32px;padding:4px!important;text-align:center;"></th>
+                            <th style="width: 38%" onclick="sortReportData('name')">Name <br> பெயர்<span class="sort-indicator" id="sortIndicatorName"></span></th>
+                            <th style="width: 27%; padding-left: 20px;" onclick="sortReportData('juz')">Juz <br> ஜுஸ்<span class="sort-indicator" id="sortIndicatorJuz"></span></th>
+                            <th style="width: 35%" onclick="sortReportData('status')">Status <br> நிலை<span class="sort-indicator" id="sortIndicatorStatus"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align:center;">Loading report card data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="hadiyaCaptureArea" style="display:none;"><div class="hadiya-container" style="margin:0;border-radius:0;">
+    <span class="hadiya-title">This Week's Hadiya <br> இந்த வார ஹதியா</span>
+    <div id="hadCurrentCapture" class="hadiya-main">Loading...</div>
+    <div class="hadiya-grid">
+        <div class="small-hadiya"><span class="hadiya-title" style="font-size:0.65rem">Previous Hadiya <br> கடந்த ஹதியா</span><div id="hadPrevCapture"></div></div>
+        <div class="small-hadiya"><span class="hadiya-title" style="font-size:0.65rem">Next Hadiya <br> அடுத்த ஹதியா</span><div id="hadNextCapture"></div></div>
+    </div>
+</div></div>
+
+<div class="confirm-overlay" id="bulkStep2Overlay">
+    <div class="confirm-box" style="max-width:380px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="margin:0;color:#5eead4;font-size:1rem;font-weight:600;">Bulk Update — Step 2</h3>
+            <span class="close-btn" onclick="closeBulkStep2()" style="font-size:1.5rem;">&times;</span>
+        </div>
+        <div id="bulkStep2Info" style="font-size:0.85rem;color:#8b949e;margin-bottom:10px;">Loading...</div>
+        <div class="confirm-list" id="bulkStep2List" style="max-height:120px;"></div>
+        <div style="margin:14px 0 10px;font-weight:600;color:#c9d1d9;font-size:0.9rem;">Set status to:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn-status-completed" onclick="selectBulkStatus('Completed')" style="flex:1;min-width:100px;margin-top:0;padding:12px 8px;font-size:0.85rem;">Completed ✓</button>
+            <button class="btn-status-reciting" onclick="selectBulkStatus('Reciting')" style="flex:1;min-width:100px;margin-top:0;padding:12px 8px;font-size:0.85rem;">Reciting 🔄</button>
+            <button class="btn-status-exception" onclick="selectBulkStatus('Exception Raised')" style="flex:1;min-width:100px;margin-top:0;padding:12px 8px;font-size:0.85rem;">Exception ⚠️</button>
+        </div>
+        <div style="text-align:right;margin-top:8px;">
+            <button class="time-toggle-btn" id="bulkstep2TimeToggle" onclick="toggleTimePicker('bulkstep2')" style="font-size:0.8rem;padding:4px 10px;">⏱ Set Time / நேரம்</button>
+        </div>
+        <div class="time-picker-row" id="bulkstep2TimePickerRow">
+            <input type="datetime-local" id="bulkstep2CustomTime">
+            <button class="time-reset-btn" onclick="resetCustomTime('bulkstep2')">Now / இப்போது</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-confirm-no" onclick="closeBulkStep2()" style="flex:1;padding:10px;">Back / பின்</button>
+            <button class="btn-confirm-yes" id="bulkStep2ConfirmBtn" onclick="openBulkConfirm()" style="flex:1;padding:10px;" disabled>Continue</button>
+        </div>
+    </div>
+</div>
+
+<div class="confirm-overlay" id="bulkConfirmOverlay">
+    <div class="confirm-box">
+        <h3>⚠️ Confirm</h3>
+        <div id="bulkConfirmInfo" style="font-size:0.9rem; color:#c9d1d9; margin-bottom:8px;"></div>
+        <div class="confirm-list" id="bulkConfirmList"></div>
+        <div class="confirm-actions">
+            <button class="btn-confirm-no" onclick="closeBulkConfirm()">Cancel / ரத்து</button>
+            <button class="btn-confirm-yes" id="bulkConfirmYesBtn" onclick="executeBulkUpdate()">Confirm / உறுதி</button>
+        </div>
+    </div>
+</div>
+
+<div id="reportEditModal" class="modal">
+    <div class="modal-content" style="max-width:360px;">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:5px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1rem; color:#5eead4;">Update Status / நிலை மாற்ற</span>
+            <span class="close-btn" onclick="closeReportEditModal()">&times;</span>
+        </div>
+        <div style="margin-bottom:15px;">
+            <div style="font-weight:600; color:#e6edf3;" id="reportEditName"></div>
+            <div style="font-size:0.8rem; color:#8b949e; margin-top:4px;">Current: <span id="reportEditCurrentStatus"></span></div>
+        </div>
+        <div style="text-align:right; margin-top:8px;">
+            <button class="time-toggle-btn" id="reportTimeToggle" onclick="toggleTimePicker('report')">⏱ Set Time / நேரம்</button>
+        </div>
+        <div class="time-picker-row" id="reportTimePickerRow">
+            <input type="datetime-local" id="reportCustomTime">
+            <button class="time-reset-btn" onclick="resetCustomTime('report')">Now / இப்போது</button>
+        </div>
+        <button class="btn-status-completed status-btn" onclick="submitReportEditStatus('Completed')" style="margin-top:0; padding:12px;">Completed ✓</button>
+        <button class="btn-status-reciting status-btn" onclick="submitReportEditStatus('Reciting')" style="margin-top:8px; padding:12px;">Reciting 🔄</button>
+        <button class="btn-status-exception status-btn" onclick="submitReportEditStatus('Exception Raised')" style="margin-top:8px; padding:12px;">Exception ⚠️</button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeReportEditModal()">Back ←</button>
+    </div>
+</div>
+
+<div id="dedicationModal" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:5px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1rem; color:#d29922;">🎯 Change Dedication <br> அர்ப்பணிப்பை மாற்ற</span>
+            <span class="close-btn" onclick="closeDedicationModal()">&times;</span>
+        </div>
+        <div style="font-size:0.8rem; color:#8b949e; margin-bottom:10px;">Select someone or type a custom name <br> ஒருவரைத் தேர்ந்தெடுக்கவும் அல்லது பெயரை உள்ளிடவும்</div>
+        <select id="dedicationUserSelect" onchange="onDedicationUserSelect()" style="margin-bottom:8px;">
+            <option value="">-- Select / தேர்ந்தெடு --</option>
+        </select>
+        <div style="font-size:0.75rem; color:#8b949e; text-align:center; margin:4px 0;">— OR / அல்லது —</div>
+        <input type="text" id="dedicationCustomInput" placeholder="Custom name / பெயர்..." oninput="onDedicationCustomInput()" style="margin-top:4px;">
+        <button id="saveDedicationBtn" onclick="saveDedication()" style="margin-top:10px; padding:12px; background:#bb8009;">Save Dedication <br> அர்பணிப்புச் சேமி</button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeDedicationModal()">Back ←<br> பின்</button>
+    </div>
+</div>
+
+<div id="hadiyaEditModal" class="modal">
+    <div class="modal-content" style="max-width:380px;">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:5px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1rem; color:#5eead4;">Edit Hadiya / ஹதியாவை மாற்ற</span>
+            <span class="close-btn" onclick="closeHadiyaEditModal()">&times;</span>
+        </div>
+        <div style="margin-bottom:15px;">
+            <div id="hadiyaEditNominee" style="font-weight:600; color:#e6edf3;"></div>
+            <div style="font-size:0.8rem; color:#8b949e; margin-top:4px;">Status: <span id="hadiyaEditStatus"></span></div>
+        </div>
+        <button class="btn-status-completed status-btn" onclick="submitHadiyaEditComplete()" style="margin-top:0; padding:12px;">✅ Completed <br> நிறைவேறியது</button>
+        <button class="btn-status-reciting status-btn" onclick="openHadiyaEditDedication()" style="margin-top:8px; padding:12px;">🎯 Change Dedication <br> அர்ப்பணிப்பை மாற்று </button>
+        <hr style="border:none;border-top:1px solid #21262d;margin:12px 0;">
+        <div style="font-size:0.8rem;color:#8b949e;margin-bottom:8px;font-weight:600;">Schedule Times / நேர அமைப்புகள்</div>
+        <div id="hadiyaScheduleTimeAlert" style="font-size:0.75rem;color:#f87171;margin-bottom:6px;"></div>
+        <div style="margin-bottom:8px;">
+            <label style="font-size:0.75rem;color:#c9d1d9;display:block;margin-bottom:4px;">Countdown Deadline</label>
+            <input type="datetime-local" id="hadiyaDeadlineInput" style="width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:10px;font-size:0.85rem;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:8px;">
+            <label style="font-size:0.75rem;color:#c9d1d9;display:block;margin-bottom:4px;">Next Hadiya Start</label>
+            <input type="datetime-local" id="hadiyaNextStartInput" style="width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:10px;font-size:0.85rem;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <button id="hadiyaConfigSaveBtn" onclick="saveHadiyaScheduleTimes()" style="margin-top:4px;width:100%;padding:10px;font-size:0.8rem;background:#2e7d32;border:none;border-radius:8px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;">Save Schedule Times<br>நேரத்தை சேமிக்க</button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeHadiyaEditModal()">Back ←<br> பின்</button>
+    </div>
+</div>
+
+<div id="reassignModal" class="modal">
+    <div class="modal-content reassign-modal-content">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:10px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1.15rem; color:#f87171;">⚠️ Exception Registered</span>
+            <span class="close-btn" onclick="closeReassignModal()">&times;</span>
+        </div>
+        
+        <div class="reassign-meta-info" id="reassignMetaText">
+            Loading assignment details...
+        </div>
+
+        <div class="form-group">
+            <label style="font-size:0.85rem;">Backup Reader <br> ஆதரவு வாசகர்</label>
+            <select id="supportUserSelect">
+                <option value="">Select Support Partner...</option>
+            </select>
+        </div>
+
+        <button id="reassignBtn" onclick="submitReassignment()">
+            Assign Reciting Partner <br> உதவி வாசகரை நியமி
+        </button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeReassignModal()">
+            Skip <br> பின்னர் செய்வேன்
+        </button>
+    </div>
+</div>
+
+<script>
+    let currentActiveUserId = null;
+    let currentActiveRawDate = null;
+    let currentActiveJuzNumber = null;
+    let rawReportData = [];
+    let currentHadiyaDetails = null;
+    let bulkMode = false;
+    let selectedUserIds = new Set();
+    let bulkAvailableData = [];
+    let searchVisible = false;
+    let bulkSelectedStatus = '';
+    let sortColumn = 'name';
+    let sortAsc = true;
+    let fetchedStateCache = null;
+
+    document.getElementById('dateInput').valueAsDate = new Date();
+    let userListData = [];
+
+    // ===== SUPABASE CLIENT SHIM =====
+    // Replaces google.script.run so all existing UI code stays unchanged.
+    (function() {
+        var _ok = null, _err = null;
+        function run() { return this; }
+        var api = {
+            withSuccessHandler: function(fn) { _ok = fn; return this; },
+            withFailureHandler: function(fn) { _err = fn; return this; },
+            // ----------------------------------------------------------------
+            // getUserList
+            // ----------------------------------------------------------------
+            getUserList: function() {
+                var self = this;
+                _supabase.from('members').select('id,name_en,name_ta').order('sequence', { ascending: true }).then(function(r) {
+                    if (r.error) { if (_err) _err(r.error); else console.error(r.error); return; }
+                    var out = r.data.map(function(u) { return { id: u.id, arabic: '', english: u.name_en||'', tamil: u.name_ta||'' }; });
+                    if (_ok) _ok(out);
+                });
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // lookupTamilName
+            // ----------------------------------------------------------------
+            lookupTamilName: function(userId) {
+                var self = this;
+                _supabase.from('members').select('name_ta').eq('id', userId).single().then(function(r) {
+                    if (_ok) _ok((r.data && r.data.name_ta) || '');
+                });
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // lookupJuzFromSchedule
+            // ----------------------------------------------------------------
+            lookupJuzFromSchedule: function(userId, targetDate) {
+                var self = this;
+                var d = new Date(targetDate); d.setHours(0,0,0,0);
+                _supabase.from('weekly_status').select('juz_number').eq('member_id', userId).lte('week_start', formatLocalDate(d)).order('week_start', { ascending: false }).limit(1).then(function(r) {
+                    if (_ok) _ok((r.data && r.data[0]) ? String(r.data[0].juz_number) : '');
+                });
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // getAvailableSupportUsers
+            // ----------------------------------------------------------------
+            getAvailableSupportUsers: function(selectedDate, excludeUserId) {
+                var self = this;
+                var norm = normalizeToWeekStart(selectedDate);
+                // Get all users who have an exception this week
+                _supabase.from('weekly_status').select('member_id').eq('week_start', norm).eq('status', 'Exception Raised').then(function(rExc) {
+                    var excIds = {};
+                    if (rExc.data) rExc.data.forEach(function(x) { excIds[x.member_id] = true; });
+                    // Get all non-exception users from members
+                    _supabase.from('members').select('id,name_en,name_ta').order('sequence', { ascending: true }).then(function(rCfg) {
+                        var out = [];
+                        if (rCfg.data) rCfg.data.forEach(function(u) {
+                            if (u.id !== excludeUserId && !excIds[u.id]) out.push({ id: u.id, english: u.name_en||'', tamil: u.name_ta||'' });
+                        });
+                        if (_ok) _ok(out);
+                    });
+                });
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // findJuzAssignment
+            // ----------------------------------------------------------------
+            findJuzAssignment: function(userId, selectedDate) {
+                var self = this;
+                var inputDate = new Date(selectedDate); inputDate.setHours(0,0,0,0);
+                // Friday 10PM cutoff
+                if (inputDate.getDay() === 5) {
+                    var _cutoff = new Date(inputDate); _cutoff.setHours(22,0,0,0);
+                    if (new Date() < _cutoff) inputDate.setDate(inputDate.getDate() - 1);
+                }
+                // Find latest weekly_status row before/on inputDate
+                _supabase.from('weekly_status').select('week_start,juz_number,member_name,status,completed_date_time,exception_raised_time,supported_by_name,supported_by_id,support_status').eq('member_id', userId).lte('week_start', formatLocalDate(inputDate)).order('week_start', { ascending: false }).limit(1).then(function(rStat) {
+                    if (!rStat.data || rStat.data.length === 0) {
+                        // No weekly_status row found — calculate Juz dynamically
+                        _supabase.from('members').select('sequence').eq('id', userId).single().then(function(rSeq) {
+                            if (!rSeq.data) { if (_ok) _ok({ error: "Member not found." }); return; }
+                            var seq = rSeq.data.sequence;
+                            // Find earliest week_start for this user to determine base week
+                            _supabase.from('weekly_status').select('week_start').eq('member_id', userId).order('week_start', { ascending: true }).limit(1).then(function(rFirst) {
+                                var baseDate;
+                                if (rFirst.data && rFirst.data.length > 0) {
+                                    baseDate = new Date(rFirst.data[0].week_start);
+                                } else {
+                                    // No rows at all — use a default base (e.g. 2026-01-05, first Monday of 2026)
+                                    baseDate = new Date('2026-01-05');
+                                }
+                                baseDate.setHours(0, 0, 0, 0);
+                                var weekDiff = Math.round((inputDate - baseDate) / (7 * 86400000));
+                                if (weekDiff < 0) weekDiff = 0;
+                                var dynamicJuz = ((seq - 1 + weekDiff) % 30) + 1;
+                                var juzStr = String(dynamicJuz);
+                                // Look up Juz details
+                                _supabase.from('members').select('juz_ar,juz_en,juz_ta').eq('sequence', parseInt(juzStr)).single().then(function(rJuz) {
+                                    var jDetail = rJuz.data || {};
+                                    var monday = normalizeToWeekStart(formatLocalDate(inputDate));
+                                    var result = {
+                                        number: juzStr,
+                                        dateFound: formatDateDDMMMYYYY(monday),
+                                        rawDate: new Date(monday).toISOString(),
+                                        arabic: jDetail.juz_ar || '',
+                                        english: jDetail.juz_en || '',
+                                        tamil: jDetail.juz_ta || '',
+                                        savedStatus: 'Not Started',
+                                        savedLastModified: '',
+                                        statusTimestamp: '',
+                                        supportedByName: '',
+                                        supportedById: '',
+                                        supportStatus: ''
+                                    };
+                                    if (_ok) _ok(result);
+                                });
+                            });
+                        });
+                        return;
+                    }
+                    var st = rStat.data[0]; var assignedJuz = String(st.juz_number);
+                    // Look up Juz details from members by sequence
+                    _supabase.from('members').select('juz_ar,juz_en,juz_ta').eq('sequence', parseInt(assignedJuz)).single().then(function(rJuz) {
+                        var jDetail = rJuz.data || {};
+                        var currentTrackerStatus = st.status || 'Reciting';
+                        var statusTimestamp = '';
+                        var supportedByName = st.supported_by_name || '';
+                        var supportedById = st.supported_by_id || '';
+                        var supportStatus = st.support_status || '';
+                        var trackerLastModified = '';
+                        var compTime = st.completed_date_time || '';
+                        var excTime = st.exception_raised_time || '';
+                        statusTimestamp = compTime || excTime || '';
+                        if (currentTrackerStatus === 'Completed' && compTime) trackerLastModified = 'Completed on: ' + compTime;
+                        else if (currentTrackerStatus === 'Exception Raised' && excTime) trackerLastModified = 'Exception raised on: ' + excTime;
+                        var result = {
+                            number: assignedJuz,
+                            dateFound: formatDateDDMMMYYYY(st.week_start),
+                            rawDate: new Date(st.week_start).toISOString(),
+                            arabic: jDetail.juz_ar || '',
+                            english: jDetail.juz_en || '',
+                            tamil: jDetail.juz_ta || '',
+                            savedStatus: currentTrackerStatus,
+                            savedLastModified: trackerLastModified,
+                            statusTimestamp: statusTimestamp,
+                            supportedByName: supportedByName,
+                            supportedById: supportedById,
+                            supportStatus: supportStatus
+                        };
+                        if (_ok) _ok(result);
+                    });
+                });
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // getHadiyaDetails
+            // ----------------------------------------------------------------
+            getHadiyaDetails: function(selectedDate) {
+                var self = this;
+                var inputDate = new Date(selectedDate); inputDate.setHours(0,0,0,0);
+                // Fetch ALL hadiya rows + status rows (for completed/reciting lists)
+                _supabase.from('hadiya_details').select('*').order('start_date', { ascending: true }).then(function(rH) {
+                    if (!rH.data || rH.data.length === 0) { if (_ok) _ok(null); return; }
+                    var hadData = rH.data;
+                    // Find currentIndex (latest <= inputDate)
+                    var currentIdx = -1; var latestDate = null;
+                    for (var i = 0; i < hadData.length; i++) {
+                        var rd = new Date(hadData[i].start_date); rd.setHours(0,0,0,0);
+                        if (rd <= inputDate && (!latestDate || rd > latestDate)) { latestDate = rd; currentIdx = i; }
+                    }
+                    if (currentIdx === -1) { if (_ok) _ok(null); return; }
+                    // Find todayIndex
+                    var today = new Date(); today.setHours(0,0,0,0);
+                    var todayIdx = -1; var todayDate = null;
+                    for (var i = 0; i < hadData.length; i++) {
+                        var rd = new Date(hadData[i].start_date); rd.setHours(0,0,0,0);
+                        if (rd <= today && (!todayDate || rd > todayDate)) { todayDate = rd; todayIdx = i; }
+                    }
+                    var getRowData = function(idx) {
+                        if (idx < 0 || idx >= hadData.length || !hadData[idx].nominated_to) return null;
+                        var row = hadData[idx];
+                        var startDate = new Date(row.start_date);
+                        var endDate = new Date(startDate); endDate.setDate(endDate.getDate() + 6);
+                        var rangeStr = formatDateDDMMM(startDate) + ' - ' + formatDateDDMMM(endDate);
+                        var nominatedTo = row.nominated_to || '';
+                        var nominatedToTa = row.nominated_to_ta || '';
+                        var dedicatedTo = row.dedicated_to || '';
+                        var dedicatedToTa = row.dedicated_to_ta || '';
+                        var hadiyaStatus = row.status || 'Pending';
+                        var rawDeadline = row.countdown_end_moment || '';
+                        var rawNextStart = row.next_hadiya_start_moment || '';
+                        // Default: next Friday from inputDate
+                        var nextFri = new Date(inputDate); nextFri.setHours(0,0,0,0);
+                        var day = nextFri.getDay();
+                        if (day !== 5) nextFri.setDate(nextFri.getDate() + ((5 - day + 7) % 7));
+                        var defaultDeadline = new Date(nextFri); defaultDeadline.setHours(15,0,0,0);
+                        var defaultNextStart = new Date(nextFri); defaultNextStart.setHours(22,0,0,0);
+                        if (rawDeadline) { var pd = new Date(rawDeadline.replace(' ','T')); if (!isNaN(pd.getTime())) defaultDeadline = pd; }
+                        if (rawNextStart) { var pn = new Date(rawNextStart.replace(' ','T')); if (!isNaN(pn.getTime())) defaultNextStart = pn; }
+                        return {
+                            en: nominatedTo, ta: nominatedToTa, range: rangeStr,
+                            dedicatedTo: dedicatedTo, dedicatedToTa: dedicatedToTa,
+                            status: hadiyaStatus,
+                            weekEndDate: endDate.toISOString(),
+                            deadlineISO: defaultDeadline.toISOString(),
+                            nextStartISO: defaultNextStart.toISOString(),
+                            rawIdx: idx
+                        };
+                    };
+                    // Read nextStart for cutoff
+                    var curRow = getRowData(currentIdx);
+                    if (!curRow) { if (_ok) _ok(null); return; }
+                    var nsDate = new Date(curRow.nextStartISO);
+                    var nsHour = nsDate.getHours();
+                    var nsMin = nsDate.getMinutes();
+                    // Friday before nextStart cutoff → show current (ending) week
+                    if (inputDate.getDay() === 5) {
+                        var _cutoff = new Date(inputDate); _cutoff.setHours(nsHour, nsMin, 0, 0);
+                        if (new Date() < _cutoff) inputDate.setDate(inputDate.getDate() - 1);
+                        // Re-evaluate
+                        currentIdx = -1; latestDate = null;
+                        for (var i = 0; i < hadData.length; i++) {
+                            var rd = new Date(hadData[i].start_date); rd.setHours(0,0,0,0);
+                            if (rd <= inputDate && (!latestDate || rd > latestDate)) { latestDate = rd; currentIdx = i; }
+                        }
+                        if (currentIdx === -1) { if (_ok) _ok(null); return; }
+                        curRow = getRowData(currentIdx);
+                        if (!curRow) { if (_ok) _ok(null); return; }
+                    }
+                    // Auto-advance (only for current-week view)
+                    if (currentIdx === todayIdx) {
+                        var curStatus = hadData[currentIdx].status || 'Pending';
+                        if (curStatus === 'Completed') {
+                            var advDate = new Date(curRow.nextStartISO);
+                            if (advDate && new Date() >= advDate && currentIdx + 1 < hadData.length) {
+                                currentIdx++;
+                                curRow = getRowData(currentIdx);
+                                if (!curRow) { if (_ok) _ok(null); return; }
+                            }
+                        }
+                    }
+                    // Collect completed / reciting lists from weekly_status
+                    var targetMonday = latestDate || new Date(0);
+                    targetMonday.setHours(0,0,0,0);
+                    var mondayStr = normalizeToWeekStart(formatLocalDate(targetMonday));
+                    _supabase.from('weekly_status').select('*').eq('week_start', mondayStr).then(function(rStat) {
+                        var completedList = []; var recitingList = []; var supportersList = [];
+                        if (rStat.data) {
+                            rStat.data.forEach(function(s) {
+                                var name = s.member_name || '';
+                                if (!name) return;
+                                var status = s.status || 'Not Started';
+                                var supportStatus = s.support_status || '';
+                                var enName = name.indexOf('|') > -1 ? name.split('|')[0].trim() : name;
+                                var taName = name.indexOf('|') > -1 ? name.split('|')[1].trim() : name;
+                                var isDone = (status === 'Completed') || (status === 'Exception Raised' && supportStatus === 'Completed');
+                                var person = { en: enName, ta: taName };
+                                if (isDone) completedList.push(person);
+                                else if (status === 'Reciting' || status === 'Not Started' || status === 'Exception Raised') recitingList.push(person);
+                                var supporterName = s.supported_by_name || '';
+                                if (supporterName) {
+                                    var sEn = supporterName.indexOf('|') > -1 ? supporterName.split('|')[0].trim() : supporterName;
+                                    var sTa = supporterName.indexOf('|') > -1 ? supporterName.split('|')[1].trim() : supporterName;
+                                    supportersList.push({ en: sEn, ta: sTa });
+                                }
+                            });
+                        }
+                        var result = {
+                            current: getRowData(currentIdx),
+                            previous: getRowData(currentIdx - 1),
+                            next: getRowData(currentIdx + 1),
+                            currentIndex: currentIdx,
+                            completedList: completedList,
+                            recitingList: recitingList,
+                            supportersList: supportersList
+                        };
+                        if (_ok) _ok(result);
+                    });
+                });
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // getWeeklyReport
+            // ----------------------------------------------------------------
+            getWeeklyReport: function(selectedDate) {
+                var self = this;
+                var monday = normalizeToWeekStart(selectedDate);
+                if (!monday) { if (_ok) _ok({ error: "Invalid date." }); return; }
+                // Determine if this week is the current week
+                var today = new Date(); today.setHours(0,0,0,0);
+                if (today.getDay() === 5) {
+                    var _cutoff = new Date(today); _cutoff.setHours(22,0,0,0);
+                    if (new Date() < _cutoff) today.setDate(today.getDate() - 1);
+                }
+                var currentMonday = normalizeToWeekStart(formatLocalDate(today));
+                var isCurrentWeek = monday === currentMonday;
+                // Get weekly_status for this week (has juz_number + status + member_name all in one table)
+                _supabase.from('weekly_status').select('member_id,juz_number,member_name,status,completed_date_time,exception_raised_time,supported_by_name,support_status').eq('week_start', monday).then(function(rStat) {
+                    // If no rows exist, generate dynamically from members
+                    if (!rStat.data || rStat.data.length === 0) {
+                        // Get all members + a base date for offset calculation
+                        _supabase.from('members').select('id,sequence,name_en,name_ta').order('sequence', { ascending: true }).then(function(rMem) {
+                            if (!rMem.data || rMem.data.length === 0) { if (_ok) _ok({ error: "No members found." }); return; }
+                            // Find earliest week_start across all members
+                            _supabase.from('weekly_status').select('week_start').order('week_start', { ascending: true }).limit(1).then(function(rFirst) {
+                                var baseDate;
+                                if (rFirst.data && rFirst.data.length > 0) {
+                                    baseDate = new Date(rFirst.data[0].week_start);
+                                } else {
+                                    baseDate = new Date('2026-01-05');
+                                }
+                                baseDate.setHours(0, 0, 0, 0);
+                                var targetDate = new Date(monday + 'T00:00:00');
+                                var weekDiff = Math.round((targetDate - baseDate) / (7 * 86400000));
+                                if (weekDiff < 0) weekDiff = 0;
+                                // Get Juz details from members by sequence
+                                _supabase.from('members').select('sequence,juz_ar,juz_en,juz_ta').order('sequence', { ascending: true }).then(function(rJuz) {
+                                    var juzMap = {};
+                                    if (rJuz.data) rJuz.data.forEach(function(j) { juzMap[j.sequence] = { arabic: j.juz_ar||'', english: j.juz_en||'', tamil: j.juz_ta||'' }; });
+                                    var reportList = [];
+                                    rMem.data.forEach(function(m) {
+                                        var dynJuz = ((m.sequence - 1 + weekDiff) % 30) + 1;
+                                        var juzStr = String(dynJuz);
+                                        var jDetails = juzMap[dynJuz] || { arabic: '', english: '', tamil: '' };
+                                        var displayName = (m.name_en || '') + ' | ' + (m.name_ta || '');
+                                        reportList.push({
+                                            userId: m.id, name: displayName, juzNum: juzStr,
+                                            juzAr: jDetails.arabic, juzEn: jDetails.english, juzTa: jDetails.tamil,
+                                            status: 'Not Started',
+                                            dateLogged: '',
+                                            supportedBy: '',
+                                            supportStatus: '',
+                                            isEditable: isCurrentWeek
+                                        });
+                                    });
+                                    if (_ok) _ok({ week: monday, data: reportList, isEditable: isCurrentWeek });
+                                });
+                            });
+                        });
+                        return;
+                    }
+                    // Get Juz details from members by sequence
+                    _supabase.from('members').select('sequence,juz_ar,juz_en,juz_ta').order('sequence', { ascending: true }).then(function(rJuz) {
+                        var juzMap = {};
+                        if (rJuz.data) rJuz.data.forEach(function(j) { juzMap[j.sequence] = { arabic: j.juz_ar||'', english: j.juz_en||'', tamil: j.juz_ta||'' }; });
+                        var reportList = [];
+                        rStat.data.forEach(function(s) {
+                            var uid = s.member_id; var juzNum = String(s.juz_number);
+                            var jDetails = juzMap[s.juz_number] || { arabic: '', english: '', tamil: '' };
+                            var displayName = s.member_name || ('User ' + uid);
+                            reportList.push({
+                                userId: uid, name: displayName, juzNum: juzNum,
+                                juzAr: jDetails.arabic, juzEn: jDetails.english, juzTa: jDetails.tamil,
+                                status: s.status || 'Not Started',
+                                dateLogged: (s.status === 'Completed' ? s.completed_date_time : (s.status === 'Exception Raised' ? s.exception_raised_time : '')) || '',
+                                supportedBy: s.supported_by_name || '',
+                                supportStatus: s.support_status || '',
+                                isEditable: isCurrentWeek
+                            });
+                        });
+                        if (_ok) _ok({ week: monday, data: reportList, isEditable: isCurrentWeek });
+                    });
+                });
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // updateWeeklyStatus
+            // ----------------------------------------------------------------
+            updateWeeklyStatus: function(userId, inputDateStr, statusUpdate, customTimestamp) {
+                var self = this;
+                try {
+                    var monday = normalizeToWeekStart(inputDateStr);
+                    if (!monday) { if (_ok) _ok({ success: false, error: 'Invalid date' }); return this; }
+                    // Get existing status
+                    _supabase.from('weekly_status').select('*').eq('week_start', monday).eq('member_id', userId).single().then(function(rGet) {
+                        var existing = rGet.data;
+                        var nameEn = userId;
+                        if (existing) nameEn = existing.member_name || userId;
+                        var timestamp = (customTimestamp && customTimestamp.trim()) ? customTimestamp.trim() : formatCurrentTimestamp();
+                        var updaterEmail = 'Web User (Supabase)';
+                        var oldStatus = existing ? existing.status : 'Not Started';
+                        if (existing && existing.status === statusUpdate && !(customTimestamp && customTimestamp.trim())) {
+                            if (_ok) _ok({ success: true, noChange: true }); return;
+                        }
+                        var upsertData = {
+                            week_start: monday, member_id: userId, member_name: nameEn,
+                            status: statusUpdate, completed_date_time: null, exception_raised_time: null,
+                            supported_by_name: '', supported_by_id: '', support_status: 'Reciting',
+                            audit_log: existing ? (existing.audit_log || '') : ''
+                        };
+                        if (statusUpdate === 'Exception Raised') {
+                            upsertData.exception_raised_time = timestamp;
+                            upsertData.completed_date_time = existing ? existing.completed_date_time : null;
+                            upsertData.supported_by_name = existing ? existing.supported_by_name : '';
+                            upsertData.supported_by_id = existing ? existing.supported_by_id : '';
+                            upsertData.support_status = existing ? (existing.support_status || 'Reciting') : 'Reciting';
+                        } else if (statusUpdate === 'Completed') {
+                            upsertData.completed_date_time = timestamp;
+                            upsertData.exception_raised_time = null;
+                            upsertData.supported_by_name = '';
+                            upsertData.supported_by_id = '';
+                            upsertData.support_status = 'Reciting';
+                        } else {
+                            upsertData.completed_date_time = null;
+                            upsertData.exception_raised_time = null;
+                            upsertData.supported_by_name = '';
+                            upsertData.supported_by_id = '';
+                            upsertData.support_status = 'Reciting';
+                        }
+                        var newLog = '[' + timestamp + ' - ' + updaterEmail + '] Modified Status from \'' + oldStatus + '\' to \'' + statusUpdate + '\'';
+                        upsertData.audit_log = existing ? (existing.audit_log || '') + '\n' + newLog : newLog;
+                        // Upsert
+                        _supabase.from('weekly_status').upsert(upsertData, { onConflict: 'week_start,member_id' }).then(function(rUp) {
+                            if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                            if (_ok) _ok({ success: true });
+                        });
+                    });
+                } catch(err) { if (_ok) _ok({ success: false, error: err.toString() }); }
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // updateSupportStatus
+            // ----------------------------------------------------------------
+            updateSupportStatus: function(userId, inputDateStr, newSupportStatus, customTimestamp) {
+                var self = this;
+                try {
+                    var monday = normalizeToWeekStart(inputDateStr);
+                    if (!monday) { if (_ok) _ok({ success: false, error: 'Invalid date' }); return this; }
+                    _supabase.from('weekly_status').select('*').eq('week_start', monday).eq('member_id', userId).single().then(function(rGet) {
+                        var existing = rGet.data;
+                        if (!existing) { if (_ok) _ok({ success: false, error: 'Record not found' }); return; }
+                        var timestamp = (customTimestamp && customTimestamp.trim()) ? customTimestamp.trim() : formatCurrentTimestamp();
+                        var updaterEmail = 'Web User (Supabase)';
+                        var oldSupStatus = existing.support_status || 'None';
+                        // Update support_status and completed_date_time
+                        var updateData = { support_status: newSupportStatus };
+                        if (newSupportStatus === 'Completed') updateData.completed_date_time = timestamp;
+                        else updateData.completed_date_time = null;
+                        var newLog = '[' + timestamp + ' - ' + updaterEmail + '] Updated Support Status from \'' + oldSupStatus + '\' to \'' + newSupportStatus + '\'';
+                        updateData.audit_log = (existing.audit_log || '') + '\n' + newLog;
+                        _supabase.from('weekly_status').update(updateData).eq('week_start', monday).eq('member_id', userId).then(function(rUp) {
+                            if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                            if (_ok) _ok({ success: true });
+                        });
+                    });
+                } catch(err) { if (_ok) _ok({ success: false, error: err.toString() }); }
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // reassignJuz
+            // ----------------------------------------------------------------
+            reassignJuz: function(userId, inputDateStr, supportUserId) {
+                var self = this;
+                try {
+                    var monday = normalizeToWeekStart(inputDateStr);
+                    if (!monday) { if (_ok) _ok({ success: false, error: 'Invalid date' }); return this; }
+                    // Get support user name
+                    _supabase.from('members').select('name_en,name_ta').eq('id', supportUserId).single().then(function(rSup) {
+                        var supName = rSup.data ? (rSup.data.name_en || 'Support') + ' | ' + (rSup.data.name_ta || '') : 'Support Reader';
+                        // Get existing record
+                        _supabase.from('weekly_status').select('*').eq('week_start', monday).eq('member_id', userId).single().then(function(rGet) {
+                            var existing = rGet.data;
+                            if (!existing) { if (_ok) _ok({ success: false, error: 'Record not found' }); return; }
+                            var timestamp = formatCurrentTimestamp();
+                            var updaterEmail = 'Web User (Supabase)';
+                            var updateData = {
+                                supported_by_name: supName,
+                                supported_by_id: supportUserId,
+                                support_status: 'Reciting'
+                            };
+                            var newLog = '[' + timestamp + ' - ' + updaterEmail + '] Reassigned Juz Reciting to: ' + supName + ' (Status: Reciting)';
+                            updateData.audit_log = (existing.audit_log || '') + '\n' + newLog;
+                            _supabase.from('weekly_status').update(updateData).eq('week_start', monday).eq('member_id', userId).then(function(rUp) {
+                                if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                                if (_ok) _ok({ success: true, assignedName: supName });
+                            });
+                        });
+                    });
+                } catch(err) { if (_ok) _ok({ success: false, error: err.toString() }); }
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // updateHadiyaStatus
+            // ----------------------------------------------------------------
+            updateHadiyaStatus: function(selectedDate, newStatus) {
+                var self = this;
+                try {
+                    var friday = normalizeToFriday(selectedDate);
+                    if (!friday) { if (_ok) _ok({ success: false, error: 'Invalid date' }); return this; }
+                    // Find the hadiya row for this week (PK is start_date)
+                    _supabase.from('hadiya_details').select('start_date').lte('start_date', friday).order('start_date', { ascending: false }).limit(1).single().then(function(rGet) {
+                        if (!rGet.data) { if (_ok) _ok({ success: false, error: 'Hadiya row not found' }); return; }
+                        _supabase.from('hadiya_details').update({ status: newStatus }).eq('start_date', rGet.data.start_date).then(function(rUp) {
+                            if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                            if (_ok) _ok({ success: true });
+                        });
+                    });
+                } catch(err) { if (_ok) _ok({ success: false, error: err.toString() }); }
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // updateHadiyaDedication
+            // ----------------------------------------------------------------
+            updateHadiyaDedication: function(selectedDate, dedicationEn, dedicationTa) {
+                var self = this;
+                try {
+                    var friday = normalizeToFriday(selectedDate);
+                    if (!friday) { if (_ok) _ok({ success: false, error: 'Invalid date' }); return this; }
+                    _supabase.from('hadiya_details').select('start_date').lte('start_date', friday).order('start_date', { ascending: false }).limit(1).single().then(function(rGet) {
+                        if (!rGet.data) { if (_ok) _ok({ success: false, error: 'Hadiya row not found' }); return; }
+                        _supabase.from('hadiya_details').update({ dedicated_to: dedicationEn, dedicated_to_ta: dedicationTa }).eq('start_date', rGet.data.start_date).then(function(rUp) {
+                            if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                            if (_ok) _ok({ success: true });
+                        });
+                    });
+                } catch(err) { if (_ok) _ok({ success: false, error: err.toString() }); }
+                return this;
+            },
+            // ----------------------------------------------------------------
+            // updateHadiyaScheduleTimes
+            // ----------------------------------------------------------------
+            updateHadiyaScheduleTimes: function(selectedDate, deadlineISO, nextStartISO) {
+                var self = this;
+                try {
+                    var friday = normalizeToFriday(selectedDate);
+                    if (!friday) { if (_ok) _ok({ success: false, error: 'Invalid date' }); return this; }
+                    _supabase.from('hadiya_details').select('start_date').lte('start_date', friday).order('start_date', { ascending: false }).limit(1).single().then(function(rGet) {
+                        if (!rGet.data) { if (_ok) _ok({ success: false, error: 'Hadiya row not found' }); return; }
+                        _supabase.from('hadiya_details').update({ countdown_end_moment: deadlineISO, next_hadiya_start_moment: nextStartISO }).eq('start_date', rGet.data.start_date).then(function(rUp) {
+                            if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                            if (_ok) _ok({ success: true, deadline: deadlineISO, nextStart: nextStartISO });
+                        });
+                    });
+                } catch(err) { if (_ok) _ok({ success: false, error: err.toString() }); }
+                return this;
+            }
+        };
+        window.google = window.google || {};
+        window.google.script = window.google.script || {};
+        window.google.script.run = api;
+    })();
+
+    // ===== HELPERS (replacing server-side Utilities) =====
+    function normalizeToFriday(dateStr) {
+        if (!dateStr) return null;
+        var d = new Date(dateStr); d.setHours(0,0,0,0);
+        if (isNaN(d.getTime())) return null;
+        // Friday 10PM cutoff
+        if (d.getDay() === 5) {
+            var _cutoff = new Date(d); _cutoff.setHours(22,0,0,0);
+            if (new Date() < _cutoff) d.setDate(d.getDate() - 1);
+        }
+        var day = d.getDay();
+        var diff = (day >= 5) ? (day - 5) : (day + 2);
+        var friday = new Date(d); friday.setDate(d.getDate() - diff);
+        friday.setHours(0,0,0,0);
+        return formatLocalDate(friday);
+    }
+    function normalizeToWeekStart(dateStr) {
+        if (!dateStr) return null;
+        var d = new Date(dateStr); d.setHours(0,0,0,0);
+        if (isNaN(d.getTime())) return null;
+        // Friday 10PM cutoff
+        if (d.getDay() === 5) {
+            var _cutoff = new Date(d); _cutoff.setHours(22,0,0,0);
+            if (new Date() < _cutoff) d.setDate(d.getDate() - 1);
+        }
+        var day = d.getDay();
+        var diff = (day >= 5) ? (day - 5) : (day + 2);
+        var friday = new Date(d); friday.setDate(d.getDate() - diff);
+        // Monday = Friday - 4 days
+        var monday = new Date(friday); monday.setDate(monday.getDate() - 4);
+        monday.setHours(0,0,0,0);
+        return formatLocalDate(monday);
+    }
+    function formatDateDDMMMYYYY(dateVal) {
+        var d = new Date(dateVal);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    }
+    function formatDateDDMMM(dateVal) {
+        var d = new Date(dateVal);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return ('0'+d.getDate()).slice(-2) + ' ' + months[d.getMonth()];
+    }
+    function formatCurrentTimestamp() {
+        var d = new Date();
+        var p = function(n){return String(n).padStart(2,'0');};
+        return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+    function formatLocalDate(d) {
+        var y = d.getFullYear();
+        var m = String(d.getMonth() + 1).padStart(2, '0');
+        var day = String(d.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + day;
+    }
+    // ===== END SUPABASE SHIM =====
+
+    window.onload = function() {
+        // Fetch Names, then fetch Hadiya (avoids _ok race condition)
+        google.script.run.withSuccessHandler(function(users) {
+            userListData = users;
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.innerHTML = users.map(u =>
+                `<div class="opt" data-id="${u.id}" onmousedown="selectUserOption('${u.id}','${(u.english + ' | ' + u.tamil).replace(/'/g, "\\'")}')">${u.english} | ${u.tamil}</div>`
+            ).join('');
+            const today = document.getElementById('dateInput').value;
+            fetchHadiyaDetails(today);
+        }).getUserList();
+
+        document.getElementById('dateInput').addEventListener('change', resetAssignmentDetails);
+    };
+
+    function fetchHadiyaDetails(dateVal) {
+        google.script.run
+            .withSuccessHandler(function(res) {
+                displayHadiya(res);
+            })
+            .withFailureHandler(function(err) {
+                document.getElementById('hadiyaBox').classList.remove('hadiya-loading');
+                showSnackbar("Error loading Hadiya data", true);
+            })
+            .getHadiyaDetails(dateVal);
+    }
+
+    var countdownInterval = null;
+    function startHadiyaCountdown(deadlineISO) {
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (!deadlineISO) return;
+        var target = new Date(deadlineISO);
+        var dEl = document.getElementById('hadiyaCounterDays');
+        var hEl = document.getElementById('hadiyaCounterHms');
+        if (!dEl || !hEl) return;
+        function update() {
+            var now = new Date();
+            var diff = target - now;
+            if (diff <= 0) {
+                dEl.textContent = '0D';
+                hEl.textContent = '00:00:00';
+                return;
+            }
+            var days = Math.floor(diff / 86400000);
+            var hours = Math.floor((diff % 86400000) / 3600000);
+            var minutes = Math.floor((diff % 3600000) / 60000);
+            var seconds = Math.floor((diff % 60000) / 1000);
+            var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+            dEl.textContent = days + 'D';
+            hEl.textContent = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+        }
+        update();
+        countdownInterval = setInterval(update, 1000);
+    }
+
+    function openHadiyaEditModal() {
+        var cur = currentHadiyaDetails && currentHadiyaDetails.current;
+        if (!cur) return;
+        document.getElementById('hadiyaEditNominee').innerHTML = cur.en + ' / ' + cur.ta + ' (' + cur.range + ')';
+        document.getElementById('hadiyaEditStatus').innerHTML = (cur.status === "Completed" ? '✅ ' : '⏳ ') + cur.status;
+
+        function setDL(id, iso) {
+            if (!iso) return;
+            var d = new Date(iso);
+            if (!isNaN(d.getTime())) {
+                var y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+                var h = String(d.getHours()).padStart(2,'0'), mi = String(d.getMinutes()).padStart(2,'0');
+                document.getElementById(id).value = y + '-' + mo + '-' + da + 'T' + h + ':' + mi;
+            }
+        }
+        setDL('hadiyaDeadlineInput', cur.deadlineISO);
+        setDL('hadiyaNextStartInput', cur.nextStartISO);
+
+        var today = new Date(); today.setHours(0,0,0,0);
+        var weekEnd = new Date(cur.weekEndDate);
+        weekEnd.setHours(0,0,0,0);
+        var isPast = weekEnd < today;
+        ['hadiyaDeadlineInput','hadiyaNextStartInput','hadiyaConfigSaveBtn'].forEach(function(id) {
+            var el = document.getElementById(id); if (el) el.disabled = isPast;
+        });
+        var alertEl = document.getElementById('hadiyaScheduleTimeAlert');
+        alertEl.innerHTML = isPast ? '🔒 Schedule times cannot be changed for past weeks.' : '';
+        document.getElementById('hadiyaEditModal').style.display = 'flex';
+    }
+    function closeHadiyaEditModal() {
+        document.getElementById('hadiyaEditModal').style.display = 'none';
+    }
+    function submitHadiyaEditComplete() {
+        closeHadiyaEditModal();
+        updateHadiyaStatusUI('Completed');
+    }
+    function openHadiyaEditDedication() {
+        closeHadiyaEditModal();
+        setTimeout(function() { openDedicationModal(); }, 200);
+    }
+    function saveHadiyaScheduleTimes() {
+        function getDL(id) { var v = document.getElementById(id).value; return v ? v.replace('T', ' ') + ':00' : ''; }
+        var deadlineStr = getDL('hadiyaDeadlineInput');
+        var nextStr = getDL('hadiyaNextStartInput');
+        if (!deadlineStr || !nextStr) { showSnackbar("Please set both date-time values.", true); return; }
+        document.getElementById('hadiyaConfigSaveBtn').disabled = true;
+        document.getElementById('hadiyaConfigSaveBtn').innerText = "Saving...";
+        var dateVal = document.getElementById('dateInput').value;
+        google.script.run.withSuccessHandler(function(r) {
+            document.getElementById('hadiyaConfigSaveBtn').disabled = false;
+            document.getElementById('hadiyaConfigSaveBtn').innerHTML = 'Save Schedule Times<br>நேரத்தை சேமிக்க';
+            if (r.success) {
+                showSnackbar("Schedule times saved!", false);
+                if (dateVal) fetchHadiyaDetails(dateVal);
+            } else {
+                showSnackbar("Failed: " + (r.error || 'Error'), true);
+            }
+        }).updateHadiyaScheduleTimes(dateVal, deadlineStr, nextStr);
+    }
+
+    function showSnackbar(message, isError) {
+        const snack = document.getElementById('toastSnackbar');
+        snack.innerText = message;
+        snack.className = "snackbar show " + (isError ? "snackbar-error" : "snackbar-success");
+        setTimeout(function(){ snack.className = snack.className.replace("show", ""); }, 3000);
+    }
+
+    function resetAssignmentDetails() {
+        document.getElementById('result').style.display = "none";
+        currentActiveUserId = null;
+        currentActiveRawDate = null;
+        currentActiveJuzNumber = null;
+        fetchedStateCache = null;
+        document.getElementById('hadiyaBox').classList.add('hadiya-loading');
+        var d = document.getElementById('dateInput').value;
+        if (d) fetchHadiyaDetails(d);
+    }
+
+    function navigateHadiya(dir) {
+        var input = document.getElementById('dateInput');
+        var d = new Date(input.value || new Date());
+        d.setDate(d.getDate() + dir * 7);
+        input.value = d.toISOString().split('T')[0];
+        input.dispatchEvent(new Event('change'));
+    }
+
+    function displayHadiya(res) {
+        document.getElementById('hadiyaBox').classList.remove('hadiya-loading');
+        if (!res || !res.current) {
+            document.getElementById('hadiyaBox').style.display = "none";
+            currentHadiyaDetails = null;
+            return;
+        }
+        document.getElementById('hadiyaBox').style.display = "block";
+        currentHadiyaDetails = res;
+
+        var cur = res.current;
+
+        // Header with Edit button at top-right
+        var headerHtml = `<div class="hadiya-header">
+            <div style="font-size:0.75rem; color:#7ee787; font-weight:bold;">
+                <a href="#" class="hadiya-nav-arrow" onclick="event.preventDefault(); navigateHadiya(-1);">&lt;</a>
+                ${cur.range}
+                <a href="#" class="hadiya-nav-arrow" onclick="event.preventDefault(); navigateHadiya(1);">&gt;</a>
+            </div>
+            <a href="#" id="hadiyaEditBtn" class="hadiya-edit-btn" onclick="event.preventDefault(); openHadiyaEditModal();">Edit / மாற்ற</a>
+        </div>`;
+
+        // Check if dedication exists and differs
+        var hasDedication = cur.dedicatedTo && cur.dedicatedTo !== cur.en;
+        var dedName = hasDedication ? (cur.dedicatedToTa || cur.dedicatedTo) : '';
+
+        // Nominated (smaller when dedication exists) + counter side by side
+        var nomSize = hasDedication ? '0.85rem' : '1rem';
+        var nameCol = `<div class="hadiya-name-col">
+            <div style="font-size:${nomSize}; font-weight:600; color:#e6edf3;">${cur.en}</div>
+            <div style="font-size:0.75rem; color:#8b949e;">${cur.ta}</div>
+        </div>`;
+
+        var counterCol = `<div class="hadiya-counter-col">
+            <div class="counter-days" id="hadiyaCounterDays">--</div>
+            <div class="counter-hms" id="hadiyaCounterHms">--:--:--</div>
+        </div>`;
+
+        var nameRow = `<div class="hadiya-name-row">${nameCol}${counterCol}</div>`;
+
+        // Dedication at original nomination size
+        var dedicationHtml = '';
+        if (hasDedication) {
+            dedicationHtml = `<div class="hadiya-name-col" style="margin-top:2px;">
+                <div style="font-size:0.75rem; color:#d29922; font-weight:600;">🎯 Dedicated | அர்பணித்தல்:</div>
+                <div style="font-size:1rem; font-weight:600; color:#d29922;">${dedName}</div>
+            </div>`;
+        }
+
+        // Hadiya status
+        var isCompleted = cur.status === "Completed";
+        var statusLabel = isCompleted ? '✅ Completed | நிறைவேறியது' : '⏳ Pending | நிலுவையில்';
+        var statusColor = isCompleted ? '#3fb950' : '#d29922';
+        var statusHtml = `<div style="margin-top:8px; font-size:0.8rem; color:${statusColor}; font-weight:600;">${statusLabel}</div>`;
+
+        // Pending count badge (only when not completed)
+        var pendingCount = (res.recitingList || []).length;
+        var pendingBadge = (!isCompleted && pendingCount > 0) ?
+            `<div style="margin-top:4px; padding:4px 10px; background:#3b1818; color:#f87171; border-radius:16px; font-size:0.75rem; font-weight:600; display:inline-block; border:1px dashed #da3633;">
+                ⏳ ${pendingCount} left to start Hadiya | இன்னும் ${pendingCount} பேர் மீதம்
+            </div>` : '';
+
+        document.getElementById('hadCurrent').innerHTML = headerHtml + nameRow + dedicationHtml + (isCompleted ? statusHtml : '') + pendingBadge;
+
+        // Start countdown AFTER elements are in DOM
+        startHadiyaCountdown(cur.deadlineISO);
+
+        const prevSec = document.getElementById('prevSection');
+        if (res.previous) {
+            prevSec.style.display = "block";
+            document.getElementById('hadPrev').innerHTML = 
+                `<b style="font-size:0.65rem;">${res.previous.range}</b><br>` +
+                `${res.previous.en}<br>` +
+                `<span style="font-size:0.65rem; color:#8b949e;">${res.previous.ta}</span>`;
+        } else {
+            prevSec.style.display = "none";
+        }
+        
+        const nextSec = document.getElementById('nextSection');
+        if (res.next) {
+            nextSec.style.display = "block";
+            document.getElementById('hadNext').innerHTML = 
+                `<b style="font-size:0.65rem;">${res.next.range}</b><br>` +
+                `${res.next.en}<br>` +
+                `<span style="font-size:0.65rem; color:#8b949e;">${res.next.ta}</span>`;
+        } else {
+            nextSec.style.display = "none";
+        }
+    }
+
+    function updateHadiyaStatusUI(newStatus) {
+        const dateVal = document.getElementById('dateInput').value;
+        if (!dateVal) return;
+        google.script.run.withSuccessHandler(function(r) {
+            if (r.success) {
+                showSnackbar("Hadiya status updated: " + newStatus, false);
+                fetchHadiyaDetails(dateVal);
+            } else {
+                showSnackbar("Failed: " + (r.error || 'Error'), true);
+            }
+        }).updateHadiyaStatus(dateVal, newStatus);
+    }
+
+    function openDedicationModal() {
+        document.getElementById('dedicationModal').style.display = "flex";
+        document.getElementById('dedicationUserSelect').innerHTML = '<option value="">-- Select / தேர்ந்தெடு --</option>';
+        document.getElementById('dedicationCustomInput').value = '';
+        google.script.run.withSuccessHandler(function(users) {
+            var sel = document.getElementById('dedicationUserSelect');
+            users.forEach(function(u) {
+                var opt = document.createElement('option');
+                opt.value = u.english + ' | ' + u.tamil;
+                opt.text = u.english + ' | ' + u.tamil;
+                sel.appendChild(opt);
+            });
+        }).getUserList();
+    }
+
+    function closeDedicationModal() {
+        document.getElementById('dedicationModal').style.display = "none";
+    }
+
+    function onDedicationUserSelect() {
+        var sel = document.getElementById('dedicationUserSelect');
+        if (sel.value) {
+            document.getElementById('dedicationCustomInput').value = '';
+        }
+    }
+
+    function onDedicationCustomInput() {
+        var inp = document.getElementById('dedicationCustomInput');
+        if (inp.value.trim()) {
+            document.getElementById('dedicationUserSelect').value = '';
+        }
+    }
+
+    function saveDedication() {
+        var dateVal = document.getElementById('dateInput').value;
+        if (!dateVal) { showSnackbar("Select a date first.", true); return; }
+        var sel = document.getElementById('dedicationUserSelect');
+        var custom = document.getElementById('dedicationCustomInput').value.trim();
+        var dedicationEn = '', dedicationTa = '';
+
+        if (sel.value) {
+            var parts = sel.value.split(' | ');
+            dedicationEn = parts[0] || sel.value;
+            dedicationTa = parts[1] || '';
+        } else if (custom) {
+            dedicationEn = custom;
+            dedicationTa = custom;
+        } else {
+            showSnackbar("Select or type a name.", true);
+            return;
+        }
+
+        document.getElementById('saveDedicationBtn').disabled = true;
+        google.script.run.withSuccessHandler(function(r) {
+            document.getElementById('saveDedicationBtn').disabled = false;
+            if (r.success) {
+                showSnackbar("Dedication updated! / அர்பணிப்பு மாற்றப்பட்டது!", false);
+                closeDedicationModal();
+                fetchHadiyaDetails(dateVal);
+            } else {
+                showSnackbar("Failed: " + (r.error || 'Error'), true);
+            }
+        }).updateHadiyaDedication(dateVal, dedicationEn, dedicationTa);
+    }
+
+    function updateStatusBoxColorByValue(val) {
+        const box = document.getElementById('statusBoxContainer');
+        box.classList.remove('state-progress', 'state-completed', 'state-exception');
+        
+        if (!val || val === "Reciting" || val === "Not Started") {
+            box.classList.add('state-progress');
+        } else if (val === "Completed") {
+            box.classList.add('state-completed');
+        } else if (val === "Exception Raised") {
+            box.classList.add('state-exception');
+        }
+    }
+
+    function isSelectedDateInFuture() {
+        const selectedDateStr = document.getElementById('dateInput').value;
+        if (!selectedDateStr) return false;
+        
+        const selectedDate = new Date(selectedDateStr);
+        selectedDate.setHours(0,0,0,0);
+        
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
+        return selectedDate > today;
+    }
+
+    function configureStatusEditLock(statusVal, resData) {
+        const unlockLink = document.getElementById('unlockBtn');
+        const closeEditLink = document.getElementById('closeEditBtn');
+        const buttonsGroup = document.getElementById('statusButtonsGroup');
+        const textDisplay = document.getElementById('statusTextDisplay');
+        const mainSupportWidget = document.getElementById('mainSupportWidget');
+        const supportBtnsGroup = document.getElementById('supportButtonsGroup');
+        const unlockSupportLink = document.getElementById('unlockSupportBtn');
+        const closeSupportEditLink = document.getElementById('closeSupportEditBtn');
+        const futureLockBanner = document.getElementById('futureScheduleLockBanner');
+        const mainTimeToggle = document.getElementById('mainTimeToggle');
+        const mainTimeRow = document.getElementById('mainTimePickerRow');
+        const supportTimeToggle = document.getElementById('supportTimeToggle');
+        const supportTimeRow = document.getElementById('supportTimePickerRow');
+
+        closeEditLink.style.display = "none";
+        closeSupportEditLink.style.display = "none";
+
+        if (isSelectedDateInFuture()) {
+            unlockLink.style.display = "none";
+            buttonsGroup.style.display = "none";
+            textDisplay.style.display = "none";
+            mainSupportWidget.style.display = "none";
+            futureLockBanner.style.display = "block";
+            if (mainTimeToggle) { mainTimeToggle.style.display = 'none'; mainTimeRow.style.display = 'none'; mainTimeToggle.classList.remove('active'); }
+            if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
+            updateStatusBoxColorByValue("Reciting");
+            return;
+        }
+
+        futureLockBanner.style.display = "none";
+
+        if (!statusVal || statusVal === "Not Started") {
+            statusVal = "Reciting";
+        }
+
+        if (statusVal === "Reciting") {
+            unlockLink.style.display = "none";
+            buttonsGroup.style.display = "flex"; 
+            textDisplay.innerText = "Reciting \n ஓதிக்கொண்டிருக்கிறேன் 🔄";
+            textDisplay.style.display = "block";
+            mainSupportWidget.style.display = "none";
+            if (mainTimeToggle) { mainTimeToggle.style.display = 'inline-flex'; }
+            if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
+            updateStatusBoxColorByValue("Reciting");
+        } else {
+            unlockLink.style.display = "inline-block";
+            buttonsGroup.style.display = "none";
+            if (mainTimeToggle) { mainTimeToggle.style.display = 'none'; mainTimeRow.style.display = 'none'; mainTimeToggle.classList.remove('active'); }
+            
+            if (statusVal === "Completed") {
+                textDisplay.innerText = "Completed \n நிறைவேற்றபட்டது ✓";
+                mainSupportWidget.style.display = "none";
+            } else if (statusVal === "Exception Raised") {
+                textDisplay.innerText = "Exception Raised \n விதிவிலக்கு ⚠️";
+                
+                if (resData && resData.supportedByName) {
+                    mainSupportWidget.style.display = "block";
+                    let supStatus = resData.supportStatus || "Reciting";
+                    document.getElementById('supportDetailsBanner').innerHTML = 
+                        `🤝<br><b>Backup Reader | உதவி வாசகர்:</b><br>${resData.supportedByName}<br><br>` +
+                        `<b>Status | நிலை :</b> ${supStatus === "Completed" ? "Completed ✅ <br> நிறைவேற்றபட்டது" : "Reciting 🔄 <br> ஓதிக்கொண்டிருக்கிறேன்"}`;
+                    
+                    if (supStatus === "Reciting") {
+                        unlockSupportLink.style.display = "none";
+                        closeSupportEditLink.style.display = "none";
+                        supportBtnsGroup.style.display = "flex"; 
+                        if (supportTimeToggle) { supportTimeToggle.style.display = 'inline-flex'; }
+                    } else {
+                        unlockSupportLink.style.display = "inline-block";
+                        supportBtnsGroup.style.display = "none";
+                        if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
+                    }
+
+                } else if (resData) {
+                    mainSupportWidget.style.display = "block";
+                    document.getElementById('supportDetailsBanner').innerHTML = `⚠️ <b>Exception: NOT Reassigned Yet</b>`;
+                    supportBtnsGroup.style.display = "none";
+                    unlockSupportLink.style.display = "none";
+                    closeSupportEditLink.style.display = "none";
+                    if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
+                    
+                    let assignBtn = document.createElement('button');
+                    assignBtn.className = "btn-support-status";
+                    assignBtn.style.marginTop = "10px";
+                    assignBtn.innerText = "Assign Backup Reader\nஉதவி வாசகர் நியமனம்";
+                    assignBtn.onclick = function() { openReassignModal(); };
+                    
+                    let container = document.getElementById('supportDetailsBanner');
+                    container.innerHTML = '⚠️ <b>Exception: NOT Reassigned Yet</b>';
+                    container.appendChild(assignBtn);
+                } else {
+                    if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
+                }
+            }
+            textDisplay.style.display = "block";
+        }
+        updateStatusBoxColorByValue(statusVal);
+    }
+
+    function enableStatusEditing() {
+        document.getElementById('unlockBtn').style.display = "none";
+        document.getElementById('closeEditBtn').style.display = "inline-block";
+        document.getElementById('statusButtonsGroup').style.display = "flex";
+        document.getElementById('statusTextDisplay').style.display = "none";
+        document.getElementById('mainSupportWidget').style.display = "none";
+        const mt = document.getElementById('mainTimeToggle');
+        if (mt) { mt.style.display = 'inline-flex'; }
+        
+        const box = document.getElementById('statusBoxContainer');
+        box.classList.remove('state-completed', 'state-exception');
+        box.classList.add('state-progress');
+        
+        showSnackbar("Status edit mode unlocked!", false);
+    }
+
+    function cancelStatusEditing() {
+        closeTimePickers();
+        if (fetchedStateCache) {
+            configureStatusEditLock(fetchedStateCache.savedStatus, fetchedStateCache);
+            showSnackbar("Status changes cancelled.", false);
+        }
+    }
+
+    function enableSupportStatusEditing() {
+        document.getElementById('supportButtonsGroup').style.display = "flex";
+        document.getElementById('unlockSupportBtn').style.display = "none";
+        document.getElementById('closeSupportEditBtn').style.display = "inline-block";
+        const st = document.getElementById('supportTimeToggle');
+        if (st) { st.style.display = 'inline-flex'; }
+        showSnackbar("Support reader edits unlocked!", false);
+    }
+
+    function cancelSupportStatusEditing() {
+        closeTimePickers();
+        if (fetchedStateCache) {
+            configureStatusEditLock(fetchedStateCache.savedStatus, fetchedStateCache);
+            showSnackbar("Support reader status changes cancelled.", false);
+        }
+    }
+
+    // --- Searchable User Dropdown ---
+    function openUserDropdown() {
+        document.getElementById('userDropdown').style.display = 'block';
+    }
+    function closeUserDropdown() {
+        document.getElementById('userDropdown').style.display = 'none';
+    }
+    function filterUserOptions() {
+        const q = document.getElementById('userSearch').value.toLowerCase();
+        const dropdown = document.getElementById('userDropdown');
+        const filtered = userListData.filter(u =>
+            (u.english + ' | ' + u.tamil).toLowerCase().includes(q)
+        );
+        if (filtered.length === 0) {
+            dropdown.innerHTML = '<div class="opt no-match">No matches found / பொருந்தவில்லை</div>';
+        } else {
+            dropdown.innerHTML = filtered.map(u =>
+                `<div class="opt" data-id="${u.id}" onmousedown="selectUserOption('${u.id}','${(u.english + ' | ' + u.tamil).replace(/'/g, "\\'")}')">${u.english} | ${u.tamil}</div>`
+            ).join('');
+        }
+        dropdown.style.display = 'block';
+    }
+    function selectUserOption(id, displayName) {
+        document.getElementById('userSearch').value = displayName;
+        document.getElementById('userSelect').value = id;
+        document.getElementById('userDropdown').style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+        resetAssignmentDetails();
+    }
+    // Override submitQuery to also reset time picker state
+    const _origResetAssignment = resetAssignmentDetails;
+    resetAssignmentDetails = function() {
+        _origResetAssignment();
+        closeTimePickers();
+    };
+
+    let timePickerState = { main: '', support: '', report: '' };
+    function toggleTimePicker(area) {
+        const row = document.getElementById(area + 'TimePickerRow');
+        const btn = document.getElementById(area + 'TimeToggle');
+        const isOpen = row.style.display !== 'none' && row.style.display !== '';
+        if (isOpen) {
+            row.style.display = 'none';
+            btn.classList.remove('active');
+        } else {
+            row.style.display = 'flex';
+            btn.classList.add('active');
+            const input = document.getElementById(area + 'CustomTime');
+            if (!input.value) {
+                input.value = new Date().toISOString().slice(0, 16);
+            }
+        }
+    }
+    function closeTimePickers() {
+        ['main', 'support', 'report', 'bulkstep2'].forEach(area => {
+            const row = document.getElementById(area + 'TimePickerRow');
+            const btn = document.getElementById(area + 'TimeToggle');
+            if (row) row.style.display = 'none';
+            if (btn) btn.classList.remove('active');
+        });
+    }
+    function resetCustomTime(area) {
+        const input = document.getElementById(area + 'CustomTime');
+        input.value = new Date().toISOString().slice(0, 16);
+    }
+    function getCustomTime(area) {
+        const input = document.getElementById(area + 'CustomTime');
+        if (!input || !input.value) return '';
+        return input.value.replace('T', ' ') + ':00';
+    }
+    function setCustomTime(area, dateTimeStr) {
+        const input = document.getElementById(area + 'CustomTime');
+        if (!input) return;
+        if (dateTimeStr) {
+            const m = dateTimeStr.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/);
+            if (m) {
+                input.value = m[1] + 'T' + m[2];
+            }
+        }
+    }
+
+    function submitQuery() {
+        const id = document.getElementById('userSelect').value;
+        const date = document.getElementById('dateInput').value;
+        const btn = document.getElementById('submitBtn');
+        const loader = document.getElementById('loader');
+        const resDiv = document.getElementById('result');
+
+        document.getElementById('lastModLabel').innerText = "";
+
+        btn.disabled = true;
+        resDiv.style.display = "none";
+        loader.style.display = "block";
+
+        google.script.run.withSuccessHandler(function(res) {
+            btn.disabled = false;
+            loader.style.display = "none";
+            
+            if (res.error) {
+                resDiv.innerHTML = `<div class="error">${res.error}</div>`;
+            } else {
+                currentActiveUserId = id;
+                currentActiveRawDate = res.rawDate;
+                currentActiveJuzNumber = res.number;
+                fetchedStateCache = res; 
+
+                document.getElementById('weekInfo').innerText = "Schedule for week of: " + res.dateFound + " | Juz " + res.number;
+                document.getElementById('resAr').innerText = res.arabic;
+                document.getElementById('resEn').innerText = res.english;
+                document.getElementById('resTa').innerText = res.tamil;
+
+                if (res.savedStatus) {
+                    configureStatusEditLock(res.savedStatus, res);
+                }
+
+                if (res.savedLastModified) {
+                    document.getElementById('lastModLabel').innerText = res.savedLastModified;
+                }
+
+                setCustomTime('main', res.statusTimestamp || '');
+            }
+            resDiv.style.display = "block";
+        }).findJuzAssignment(id, date);
+    }
+
+    function submitDirectStatus(statusVal) {
+        const id = document.getElementById('userSelect').value;
+        const dateInputVal = document.getElementById('dateInput').value;
+        
+        if (!id || !dateInputVal) {
+            showSnackbar("Please select a date and name first.", true);
+            return;
+        }
+
+        if (isSelectedDateInFuture()) {
+            showSnackbar("You cannot modify the status of a future schedule date.", true);
+            return;
+        }
+
+        const compBtn = document.getElementById('completedActionBtn');
+        const recBtn = document.getElementById('recitingActionBtn');
+        const excBtn = document.getElementById('exceptionActionBtn');
+        
+        compBtn.disabled = true;
+        recBtn.disabled = true;
+        excBtn.disabled = true;
+
+        const customTime = getCustomTime('main');
+        google.script.run.withSuccessHandler(function(response) {
+            compBtn.disabled = false;
+            recBtn.disabled = false;
+            excBtn.disabled = false;
+            
+            if (response.success) {
+                submitQuery();
+                fetchHadiyaDetails(dateInputVal);
+
+                if (response.noChange) {
+                    showSnackbar("No changes detected. Tracker was not modified.", false);
+                    if (statusVal === "Exception Raised") {
+                        openReassignModal();
+                    }
+                } else {
+                    showSnackbar("Status updated successfully!", false);
+                }
+            } else {
+                showSnackbar("Failed to update status: " + response.error, true);
+            }
+        }).updateWeeklyStatus(id, dateInputVal, statusVal, customTime);
+    }
+
+    function submitSupportStatusDirect(newSupStatus) {
+        const dateInputVal = document.getElementById('dateInput').value;
+        const compBtn = document.getElementById('supportCompletedBtn');
+        const recBtn = document.getElementById('supportRecitingBtn');
+
+        compBtn.disabled = true;
+        recBtn.disabled = true;
+
+        const customTime = getCustomTime('support');
+        google.script.run.withSuccessHandler(function(response) {
+            compBtn.disabled = false;
+            recBtn.disabled = false;
+            if (response.success) {
+                showSnackbar("Support Reciting status updated to " + newSupStatus, false);
+                submitQuery(); 
+                fetchHadiyaDetails(dateInputVal);
+            } else {
+                showSnackbar("Failed to update support status: " + response.error, true);
+            }
+        }).updateSupportStatus(currentActiveUserId, dateInputVal, newSupStatus, customTime);
+    }
+
+    // --- Optional Reassign Modal Logic ---
+    function openReassignModal() {
+        const modal = document.getElementById('reassignModal');
+        const select = document.getElementById('supportUserSelect');
+        const metaText = document.getElementById('reassignMetaText');
+        const reassignBtn = document.getElementById('reassignBtn');
+        const dateVal = document.getElementById('dateInput').value;
+
+        select.innerHTML = '<option value="">Loading available candidates...</option>';
+        select.disabled = true;
+        reassignBtn.disabled = true;
+        modal.style.display = "flex";
+
+        let originalName = document.getElementById('userSelect').options[document.getElementById('userSelect').selectedIndex].text;
+        metaText.innerHTML = `An exception has been registered.<br><br>விதிவிலக்கு பதிவு செய்யப்பட்டுள்ளது<br><br><b>Juz ${currentActiveJuzNumber}</b><br><b>Original Reader:</b> ${originalName}`;
+
+        google.script.run.withSuccessHandler(function(candidates) {
+            select.innerHTML = '<option value="">Select Support Partner...</option>';
+            if (candidates.length === 0) {
+                select.innerHTML = '<option value="">No readers available</option>';
+                return;
+            }
+            candidates.forEach(c => {
+                let opt = document.createElement('option');
+                opt.value = c.id;
+                opt.text = c.english + " | " + c.tamil;
+                select.appendChild(opt);
+            });
+            select.disabled = false;
+            reassignBtn.disabled = false;
+        }).getAvailableSupportUsers(dateVal, currentActiveUserId);
+    }
+
+    function submitReassignment() {
+        const supportId = document.getElementById('supportUserSelect').value;
+        const dateInputVal = document.getElementById('dateInput').value;
+        const reassignBtn = document.getElementById('reassignBtn');
+
+        if (!supportId) {
+            showSnackbar("Please select a support partner first.", true);
+            return;
+        }
+
+        reassignBtn.disabled = true;
+        reassignBtn.innerText = "Assigning...";
+
+        google.script.run.withSuccessHandler(function(response) {
+            reassignBtn.disabled = false;
+            reassignBtn.innerText = "Assign Reciting Partner";
+            
+            if (response.success) {
+                showSnackbar("Successfully reassigned Reciting support to " + response.assignedName, false);
+                closeReassignModal();
+                submitQuery(); 
+            } else {
+                showSnackbar("Failed to reassign support: " + response.error, true);
+            }
+        }).reassignJuz(currentActiveUserId, dateInputVal, supportId);
+    }
+
+    function closeReassignModal() {
+        document.getElementById('reassignModal').style.display = "none";
+        submitQuery(); 
+    }
+
+    // --- Report Modal Logic Functions ---
+    let reportIsEditable = false;
+
+    function fetchAndRenderReport(dateVal, onComplete) {
+        const tableBody = document.getElementById('reportTableBody');
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:#8b949e;">Fetching status records from database...</td></tr>';
+
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.filter-btn[data-filter="ALL"]')?.classList.add('active');
+
+        google.script.run.withSuccessHandler(function(res) {
+            if (res.error) {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#f87171; padding:20px;">${res.error}</td></tr>`;
+                if (onComplete) onComplete();
+                return;
+            }
+            document.getElementById('reportTitle').querySelector('span').innerText = "Week / வாரம் : " + res.week;
+            rawReportData = res.data;
+            reportIsEditable = res.isEditable || false;
+            document.querySelectorAll('.sort-indicator').forEach(el => { el.textContent = ''; el.classList.remove('active'); });
+            sortColumn = 'dateLogged';
+            sortAsc = false;
+            applyReportFilter();
+            if (onComplete) onComplete();
+        }).getWeeklyReport(dateVal);
+    }
+
+    function openReportModal() {
+        const modal = document.getElementById('reportModal');
+        const dateVal = document.getElementById('dateInput').value;
+        const reportBtn = document.getElementById('reportBtn');
+
+        if (!dateVal) {
+            showSnackbar("Please select a date first.", true);
+            return;
+        }
+
+        reportBtn.disabled = true;
+        reportBtn.innerText = "Loading Report...";
+        modal.style.display = "flex";
+
+        fetchAndRenderReport(dateVal, function() {
+            reportBtn.disabled = false;
+            reportBtn.innerText = "View Weekly Report \n வாராந்திர அறிக்கை";
+        });
+    }
+
+    let reportEditUserId = null;
+
+    function openReportEditModal(userId, name, currentStatus, dateLogged) {
+        reportEditUserId = userId;
+        document.getElementById('reportEditName').innerText = name;
+        document.getElementById('reportEditCurrentStatus').innerText = currentStatus === "Not Started" ? "Reciting" : currentStatus;
+        setCustomTime('report', dateLogged || '');
+        document.getElementById('reportEditModal').style.display = "flex";
+    }
+
+    function closeReportEditModal() {
+        document.getElementById('reportEditModal').style.display = "none";
+        const rtr = document.getElementById('reportTimePickerRow');
+        const rtt = document.getElementById('reportTimeToggle');
+        if (rtr) rtr.style.display = 'none';
+        if (rtt) rtt.classList.remove('active');
+        reportEditUserId = null;
+    }
+
+    function submitReportEditStatus(newStatus) {
+        if (!reportEditUserId) return;
+        const dateVal = document.getElementById('dateInput').value;
+        const btns = document.querySelectorAll('#reportEditModal .status-btn');
+        btns.forEach(b => b.disabled = true);
+
+        google.script.run.withSuccessHandler(function(response) {
+            btns.forEach(b => b.disabled = false);
+            if (response.success) {
+                const entry = rawReportData.find(r => r.userId === reportEditUserId);
+                if (entry) {
+                    entry.status = newStatus;
+                    const customReportTime = getCustomTime('report');
+                    const useTs = (newStatus === 'Completed' || newStatus === 'Exception Raised') ? (customReportTime || (function(){const d=new Date();const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());})()) : '';
+                    entry.dateLogged = useTs;
+                    if (newStatus !== 'Exception Raised') {
+                        entry.supportedBy = '';
+                        entry.supportStatus = '';
+                    }
+                }
+                showSnackbar("Status updated: " + newStatus, false);
+                closeReportEditModal();
+                applyReportFilter();
+                fetchHadiyaDetails(dateVal);
+            } else {
+                showSnackbar("Failed: " + (response.error || 'Error'), true);
+            }
+        }).updateWeeklyStatus(reportEditUserId, dateVal, newStatus, getCustomTime('report'));
+    }
+
+    function updateReportCounter(filteredCount, totalCount) {
+        const badge = document.getElementById('reportCountBadge');
+        badge.innerText = `Count / எண்ணிக்கை - ${filteredCount}`;
+    }
+
+    // --- Bulk Mode ---
+    function scrollReportToResults() {
+        setTimeout(function() {
+            const el = document.getElementById('reportSearchInput') || document.getElementById('reportTableWrapper');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 400);
+    }
+    function toggleSearchBar() {
+        searchVisible = !searchVisible;
+        const input = document.getElementById('reportSearchInput');
+        input.style.display = searchVisible ? 'block' : 'none';
+        if (searchVisible) {
+            setTimeout(function() {
+                input.focus();
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        } else {
+            input.value = '';
+            applyReportFilter();
+        }
+    }
+    function toggleBulkMode() {
+        bulkMode = !bulkMode;
+        const btn = document.getElementById('bulkToggleBtn');
+        const panel = document.getElementById('bulkPanel');
+        const ths = document.querySelectorAll('.report-bulk-th');
+        if (bulkMode) {
+            btn.classList.add('active');
+            btn.innerHTML = 'Bulk ⚡';
+            panel.style.display = 'flex';
+            ths.forEach(th => th.style.display = 'table-cell');
+            document.getElementById('reportSearchInput').style.display = 'block';
+            searchVisible = true;
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = 'Bulk ⚡';
+            panel.style.display = 'none';
+            ths.forEach(th => th.style.display = 'none');
+            selectedUserIds.clear();
+            document.getElementById('bulkApplyBtn').disabled = true;
+            document.getElementById('bulkApplyBtn').innerText = 'Process 0';
+            if (!searchVisible) {
+                document.getElementById('reportSearchInput').style.display = 'none';
+            }
+        }
+        closeTimePickers();
+        applyReportFilter();
+    }
+    function toggleBulkSelect(uid, checked) {
+        if (checked) selectedUserIds.add(uid);
+        else selectedUserIds.delete(uid);
+        updateBulkApplyBtn();
+    }
+    function toggleSelectAll() {
+        const allChecked = bulkAvailableData.every(r => selectedUserIds.has(r.userId));
+        if (allChecked) {
+            bulkAvailableData.forEach(r => selectedUserIds.delete(r.userId));
+        } else {
+            bulkAvailableData.forEach(r => selectedUserIds.add(r.userId));
+        }
+        applyReportFilter();
+        updateBulkApplyBtn();
+    }
+    function updateBulkApplyBtn() {
+        const btn = document.getElementById('bulkApplyBtn');
+        const n = selectedUserIds.size;
+        btn.disabled = n === 0;
+        btn.innerText = 'Process ' + n;
+    }
+    function openBulkStep2() {
+        if (selectedUserIds.size === 0) return;
+        bulkSelectedStatus = '';
+        const names = [];
+        rawReportData.forEach(r => {
+            if (selectedUserIds.has(r.userId)) {
+                const parts = r.name.split(' | ');
+                names.push(parts[0] || r.name);
+            }
+        });
+        document.getElementById('bulkStep2Info').innerHTML = `<b>${names.length}</b> record(s) selected`;
+        document.getElementById('bulkStep2List').innerHTML = names.join('<br>');
+        document.getElementById('bulkStep2ConfirmBtn').disabled = true;
+        document.getElementById('bulkStep2Overlay').style.display = 'flex';
+        document.getElementById('bulkstep2CustomTime').value = '';
+    }
+    function closeBulkStep2() {
+        document.getElementById('bulkStep2Overlay').style.display = 'none';
+        const row = document.getElementById('bulkstep2TimePickerRow');
+        const btn = document.getElementById('bulkstep2TimeToggle');
+        if (row) row.style.display = 'none';
+        if (btn) btn.classList.remove('active');
+    }
+    function selectBulkStatus(status) {
+        bulkSelectedStatus = status;
+        const labels = {'Completed':'Completed ✓','Reciting':'Reciting 🔄','Exception Raised':'Exception ⚠️'};
+        document.getElementById('bulkStep2ConfirmBtn').disabled = false;
+        document.getElementById('bulkStep2ConfirmBtn').innerText = 'Continue — ' + (labels[status] || status);
+        document.querySelectorAll('#bulkStep2Overlay .btn-status-completed, #bulkStep2Overlay .btn-status-reciting, #bulkStep2Overlay .btn-status-exception').forEach(b => {
+            b.style.outline = b.getAttribute('onclick').includes("'" + status + "'") ? '2px solid #5eead4' : 'none';
+        });
+    }
+    function openBulkConfirm() {
+        const dateVal = document.getElementById('dateInput').value;
+        const names = [];
+        rawReportData.forEach(r => {
+            if (selectedUserIds.has(r.userId)) {
+                const parts = r.name.split(' | ');
+                names.push(parts[0] || r.name);
+            }
+        });
+        const labels = {'Completed':'Completed ✓','Reciting':'Reciting 🔄','Exception Raised':'Exception ⚠️'};
+        document.getElementById('bulkConfirmInfo').innerHTML =
+            `<b>Status:</b> ${labels[bulkSelectedStatus] || bulkSelectedStatus}<br><b>Date:</b> ${dateVal}<br><b>Records:</b> ${names.length}`;
+        document.getElementById('bulkConfirmList').innerHTML = names.join('<br>');
+        document.getElementById('bulkConfirmOverlay').style.display = 'flex';
+        closeBulkStep2();
+    }
+    function closeBulkConfirm() {
+        document.getElementById('bulkConfirmOverlay').style.display = 'none';
+    }
+    function executeBulkUpdate() {
+        const status = bulkSelectedStatus;
+        const dateVal = document.getElementById('dateInput').value;
+        const customTime = getCustomTime('bulkstep2');
+        const userIds = Array.from(selectedUserIds);
+        const btn = document.getElementById('bulkConfirmYesBtn');
+        btn.disabled = true;
+        btn.innerText = 'Updating...';
+        let completed = 0, failed = 0;
+        const total = userIds.length;
+        function processNext(i) {
+            if (i >= total) {
+                btn.disabled = false;
+                btn.innerText = 'Confirm / உறுதி';
+                closeBulkConfirm();
+                showSnackbar('Bulk update: ' + completed + ' updated, ' + failed + ' failed', failed > 0);
+                if (completed > 0) {
+                    selectedUserIds.clear();
+                    fetchAndRenderReport(dateVal);
+                }
+                return;
+            }
+            google.script.run.withSuccessHandler(function(res) {
+                if (res.success) completed++;
+                else failed++;
+                processNext(i + 1);
+            }).updateWeeklyStatus(userIds[i], dateVal, status, customTime);
+        }
+        processNext(0);
+    }
+
+    function formatDisplayDate(dateStr) {
+        if (!dateStr) return '';
+        const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
+        if (m) {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const h = +m[4], min = +m[5];
+            var dt = new Date(+m[1], +m[2]-1, +m[3]);
+            var dayName = days[dt.getDay()];
+            return dayName + ', ' + (+m[3]) + ' ' + months[+m[2]-1] + ' ' + m[1] + ', ' + (h % 12 || 12) + ':' + String(min).padStart(2,'0') + ' ' + (h >= 12 ? 'PM' : 'AM');
+        }
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const h = d.getHours(), min = d.getMinutes();
+            return days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() + ', ' + (h % 12 || 12) + ':' + String(min).padStart(2,'0') + ' ' + (h >= 12 ? 'PM' : 'AM');
+        }
+        return dateStr;
+    }
+
+    function formatDisplayDateParts(dateStr) {
+        if (!dateStr) return null;
+        const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
+        let d, h, min;
+        if (m) {
+            d = new Date(+m[1], +m[2] - 1, +m[3]);
+            h = +m[4];
+            min = +m[5];
+        } else {
+            d = new Date(dateStr);
+            if (isNaN(d.getTime())) return null;
+            h = d.getHours();
+            min = d.getMinutes();
+        }
+        return {
+            day: days[d.getDay()],
+            date: d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear(),
+            time: (h % 12 || 12) + ':' + String(min).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM')
+        };
+    }
+
+    function renderReportRows(items) {
+        const tableBody = document.getElementById('reportTableBody');
+        bulkAvailableData = items;
+        if (items.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#8b949e;">No matching records found.</td></tr>';
+            return;
+        }
+
+        let html = "";
+        items.forEach(row => {
+            let badgeClass = "badge-default";
+            
+            let resolvedStatus = row.status;
+            if (!resolvedStatus || resolvedStatus === "Not Started") {
+                resolvedStatus = "Reciting";
+            }
+
+            if (resolvedStatus === "Completed") badgeClass = "badge-completed";
+            else if (resolvedStatus === "Reciting") badgeClass = "badge-progress";
+            else if (resolvedStatus === "Exception Raised") badgeClass = "badge-exception";
+
+            let dateLoggedInfo = '';
+            if (row.dateLogged) {
+                var dtParts = formatDisplayDateParts(row.dateLogged);
+                if (dtParts) {
+                    dateLoggedInfo = '<span class="date-logged"><span>' + dtParts.day + '</span><span class="date-line">' + dtParts.date + '</span><span class="time-line">' + dtParts.time + '</span></span>';
+                } else {
+                    dateLoggedInfo = '<span class="date-logged">' + formatDisplayDate(row.dateLogged) + '</span>';
+                }
+            }
+            
+            if (row.status === "Exception Raised") {
+                if (row.supportedBy) {
+                    let supStatusText = row.supportStatus === "Completed" ? "Completed ✅" : "Reciting 🔄";
+                    dateLoggedInfo += `<span class="date-logged" style="color: #58a6ff; font-weight:600;">🤝 Support: ${row.supportedBy} (${supStatusText})</span>`;
+                } else {
+                    dateLoggedInfo += `<span class="date-logged" style="color: #f87171; font-weight:600;">⚠️ Exception Unassigned</span>`;
+                }
+            }
+
+            let nameParts = row.name.split(" | ");
+            let enName = nameParts[0];
+            let taName = nameParts[1] ? `<span>${nameParts[1]}</span>` : '';
+
+            let editLink = '';
+            let timeEditIcon = '';
+            if (reportIsEditable && row.userId) {
+                const rawStatus = row.status || "Not Started";
+                const needsEdit = rawStatus === "Reciting" || rawStatus === "Not Started" ||
+                    (rawStatus === "Exception Raised" && (!row.supportedBy || row.supportStatus !== "Completed"));
+                if (needsEdit) {
+                    const encName = row.name.replace(/'/g, "\\'");
+                    const encDate = (row.dateLogged || '').replace(/'/g, "\\'");
+                    editLink = `<br><a href="#" onclick="openReportEditModal('${row.userId}','${encName}','${rawStatus}','${encDate}'); return false;" style="font-size:0.7rem; color:#58a6ff; font-weight:600;">Edit / மாற்ற</a>`;
+                }
+                if (rawStatus === "Completed") {
+                    const encName = row.name.replace(/'/g, "\\'");
+                    const encDate = (row.dateLogged || '').replace(/'/g, "\\'");
+                    timeEditIcon = `<span class="report-time-edit" style="cursor:pointer;" onclick="openReportEditModal('${row.userId}','${encName}','Completed','${encDate}')" title="Update completion time"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>`;
+                }
+            }
+
+            const isChecked = selectedUserIds.has(row.userId);
+            const cbHtml = bulkMode ? `<td class="bulk-checkbox-cell"><input type="checkbox" class="bulk-checkbox" data-uid="${row.userId}" ${isChecked ? 'checked' : ''} onchange="toggleBulkSelect('${row.userId}', this.checked)"></td>` : '';
+
+            html += `<tr>
+                ${cbHtml}
+                <td class="report-name-col">
+                    <div class="name-cell">
+                        ${enName}
+                        ${taName}
+                    </div>
+                </td>
+                <td class="report-juz-col">
+                    <div class="juz-info-block">
+                        <span class="num-badge">Juz ${row.juzNum}</span>
+                        <span class="ar-val">${row.juzAr}</span>
+                        <span class="en-val">${row.juzEn}</span>
+                        <span class="ta-val">${row.juzTa}</span>
+                    </div>
+                </td>
+                <td class="report-status-col">
+                    <span class="badge ${badgeClass}">${resolvedStatus}</span>
+                    ${dateLoggedInfo}
+                    ${editLink}
+                    ${timeEditIcon}
+                </td>
+            </tr>`;
+        });
+
+        tableBody.innerHTML = html;
+    }
+
+    function getSortValue(row, col) {
+        if (col === 'name') return row.name.toLowerCase();
+        if (col === 'juz') return parseInt(row.juzNum) || 0;
+        if (col === 'status') {
+            let s = row.status;
+            if (!s || s === "Not Started") s = "Reciting";
+            return s;
+        }
+        if (col === 'dateLogged') {
+            if (!row.dateLogged) return 0;
+            var t = new Date(row.dateLogged).getTime();
+            return isNaN(t) ? 0 : t;
+        }
+        return '';
+    }
+
+    function sortReportData(col) {
+        if (sortColumn === col) {
+            sortAsc = !sortAsc;
+        } else {
+            sortColumn = col;
+            sortAsc = true;
+        }
+        document.querySelectorAll('.sort-indicator').forEach(el => el.classList.remove('active'));
+        const indicator = document.getElementById('sortIndicator' + col.charAt(0).toUpperCase() + col.slice(1));
+        if (indicator) {
+            indicator.textContent = sortAsc ? ' ▲' : ' ▼';
+            indicator.classList.add('active');
+        }
+        applyReportFilter();
+    }
+
+    function applyReportFilter(filterVal) {
+        if (filterVal === undefined) {
+            const activeBtn = document.querySelector('.filter-btn.active');
+            filterVal = activeBtn ? activeBtn.dataset.filter : 'ALL';
+        } else {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.filter-btn[data-filter="' + filterVal + '"]')?.classList.add('active');
+        }
+
+        const searchQ = document.getElementById('reportSearchInput').value.toLowerCase().trim();
+
+        let filtered = [];
+        if (filterVal === "ALL") {
+            filtered = rawReportData;
+        } else if (filterVal === "EXCEPTION_ALL") {
+            filtered = rawReportData.filter(row => row.status === "Exception Raised");
+        } else if (filterVal === "EXCEPTION_REASSIGNED") {
+            filtered = rawReportData.filter(row => row.status === "Exception Raised" && row.supportedBy);
+        } else if (filterVal === "EXCEPTION_UNASSIGNED") {
+            filtered = rawReportData.filter(row => row.status === "Exception Raised" && !row.supportedBy);
+        } else if (filterVal === "Reciting") {
+            filtered = rawReportData.filter(row => !row.status || row.status === "Reciting" || row.status === "Not Started");
+        } else {
+            filtered = rawReportData.filter(row => row.status === filterVal);
+        }
+
+        if (searchQ) {
+            filtered = filtered.filter(row =>
+                row.name.toLowerCase().includes(searchQ) ||
+                (row.juzNum && row.juzNum.toString() === searchQ) ||
+                (row.juzEn && row.juzEn.toLowerCase().includes(searchQ)) ||
+                (row.juzTa && row.juzTa.toLowerCase().includes(searchQ)) ||
+                (row.juzAr && row.juzAr.toLowerCase().includes(searchQ))
+            );
+        }
+
+        filtered.sort((a, b) => {
+            let va = getSortValue(a, sortColumn);
+            let vb = getSortValue(b, sortColumn);
+            if (typeof va === 'string') {
+                return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+            }
+            return sortAsc ? va - vb : vb - va;
+        });
+
+        renderReportRows(filtered);
+        updateReportCounter(filtered.length, rawReportData.length);
+    }
+
+    // Capture the screen as-is using html2canvas
+    function captureElementToClipboard(element, btn, fileName, successMsg) {
+        btn.disabled = true;
+        btn.innerText = "Rendering...";
+        btn.style.background = "#37474f";
+        btn.style.color = "#ffffff";
+
+        html2canvas(element, {
+            scale: 4,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+        }).then(function(canvas) {
+            canvas.toBlob(function(blob) {
+                try {
+                    navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(function() {
+                        btn.innerText = "Copied! ✓";
+                        btn.style.background = "#1b5e20";
+                        btn.style.color = "#ffffff";
+                        setTimeout(function() {
+                            btn.innerText = fileName;
+                            btn.style.background = btn.id === 'shareBtn' ? "#2e7d32" : "#e65100";
+                            btn.style.color = "#ffffff";
+                            btn.disabled = false;
+                        }, 2500);
+                        showSnackbar(successMsg || "Image copied!", false);
+                    }).catch(function() {
+                        btn.disabled = false;
+                        btn.innerText = fileName;
+                        btn.style.background = btn.id === 'shareBtn' ? "#2e7d32" : "#e65100";
+                        btn.style.color = "#ffffff";
+                        showSnackbar("Failed to copy image. Try again.", true);
+                    });
+                } catch(e) {
+                    btn.disabled = false;
+                    btn.innerText = fileName;
+                    btn.style.background = btn.id === 'shareBtn' ? "#2e7d32" : "#e65100";
+                    btn.style.color = "#ffffff";
+                    showSnackbar("Failed to copy image.", true);
+                }
+            }, 'image/png');
+        }).catch(function(err) {
+            btn.disabled = false;
+            btn.innerText = fileName;
+            btn.style.background = btn.id === 'shareBtn' ? "#2e7d32" : "#e65100";
+            btn.style.color = "#ffffff";
+            showSnackbar("Rendering failed.", true);
+        });
+    }
+
+    function copyReportToClipboard() {
+        if (!rawReportData || rawReportData.length === 0) {
+            showSnackbar("No data available to copy.", true);
+            return;
+        }
+
+        var captureArea = document.getElementById('reportCaptureArea');
+        var shareBtn = document.getElementById('shareBtn');
+
+        // Clone capture area into an off-screen div — user sees zero DOM changes
+        var tempDiv = document.createElement('div');
+        var w = captureArea.offsetWidth;
+        tempDiv.style.cssText = 'position:fixed;left:-9999px;top:0;width:' + w + 'px;box-sizing:border-box;background:#0d1117;border-top:1px solid #21262d;border-bottom:1px solid #21262d;padding:12px 0;font-family:Poppins,sans-serif;';
+        tempDiv.innerHTML = captureArea.innerHTML;
+
+        // Fix sticky thead in clone
+        tempDiv.querySelectorAll('th').forEach(function(th) { th.style.position = 'static'; });
+        // Hide edit links in clone
+        tempDiv.querySelectorAll('a[onclick*="openReportEditModal"]').forEach(function(el) { el.style.display = 'none'; });
+        // Remove max-height in clone so all rows render
+        var cw = tempDiv.querySelector('#reportTableWrapper');
+        if (cw) { cw.style.maxHeight = 'none'; }
+
+        document.body.appendChild(tempDiv);
+
+        // Button state
+        shareBtn.disabled = true;
+        shareBtn.innerText = "Rendering...";
+        shareBtn.style.background = "#37474f";
+        shareBtn.style.color = "#ffffff";
+
+        html2canvas(tempDiv, {
+            scale: 4,
+            useCORS: true,
+            backgroundColor: '#0d1117',
+            logging: false
+        }).then(function(canvas) {
+            document.body.removeChild(tempDiv);
+            canvas.toBlob(function(blob) {
+                try {
+                    navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(function() {
+                        shareBtn.innerText = "Copied! ✓";
+                        shareBtn.style.background = "#1b5e20";
+                        shareBtn.style.color = "#ffffff";
+                        setTimeout(function() {
+                            shareBtn.innerText = "Copy Report 📋";
+                            shareBtn.style.background = "#2e7d32";
+                            shareBtn.style.color = "#ffffff";
+                            shareBtn.disabled = false;
+                        }, 2500);
+                        showSnackbar("Report copied as image!", false);
+                    }).catch(function() {
+                        shareBtn.disabled = false;
+                        shareBtn.innerText = "Copy Report 📋";
+                        shareBtn.style.background = "#2e7d32";
+                        shareBtn.style.color = "#ffffff";
+                        showSnackbar("Failed to copy image. Try again.", true);
+                    });
+                } catch(e) {
+                    shareBtn.disabled = false;
+                    shareBtn.innerText = "Copy Report 📋";
+                    shareBtn.style.background = "#2e7d32";
+                    shareBtn.style.color = "#ffffff";
+                    showSnackbar("Failed to copy image.", true);
+                }
+            }, 'image/png');
+        }).catch(function(err) {
+            document.body.removeChild(tempDiv);
+            shareBtn.disabled = false;
+            shareBtn.innerText = "Copy Report 📋";
+            shareBtn.style.background = "#2e7d32";
+            shareBtn.style.color = "#ffffff";
+            showSnackbar("Rendering failed.", true);
+        });
+    }
+
+    function copyHadiyaNoteToClipboard() {
+        if (!currentHadiyaDetails || !currentHadiyaDetails.current) {
+            showSnackbar("No Hadiya details available to copy.", true);
+            return;
+        }
+
+        var hadiyaBtn = document.getElementById('hadiyaShareBtn');
+        var res = currentHadiyaDetails;
+        var cur = res.current;
+
+        var captureDiv = document.getElementById('hadiyaCaptureArea');
+
+        var dedHtml = '';
+        if (cur.dedicatedTo && cur.dedicatedTo !== cur.en) {
+            dedHtml = '<div style="font-size:0.85rem; color:#d29922; font-weight:600; margin-bottom:8px;">🎯 Dedicated to / அர்ப்பணித்தல்: ' +
+                (cur.dedicatedToTa || cur.dedicatedTo) + '</div>';
+        }
+
+        // Tamil text
+        var tHadiyaSub = 'ஹதியா நிறைவேற்றப்பட்டது';
+        var tWeek = 'வாரம்';
+        var tAlhamdulillah = 'அல்ஹம்துலில்லாஹ், இந்த வாரத்திற்கான<br>அனைத்து ஜுஸ் ஓதுதல்களும்<br>திட்டமிட்டபடி சரியான நேரத்தில்<br>வெற்றிகரமாக நிறைவு பெற்றுள்ளன!';
+        var tJazak = 'ஜஜாக்குமுல்லாஹு கைரான், உங்களின் விரைவான அர்ப்பணிப்பிற்கு நன்றி!';
+        var tDedicated = 'இந்த வார முழுமையான கத்தம் ஹதியா<br>கீழே உள்ள உறுப்பினரால் நிறைவேற்றப்பட்டு அர்ப்பணிக்கப்படுகிறது:';
+        var tDua = 'யா அல்லாஹ், எங்களின் ஒருங்கிணைந்த முயற்சிகளை ஏற்றுக்கொண்டு,<br>ஈடுபட்ட அனைவருக்கும் மகத்தான பரக்கத்தை வழங்கி,<br>அனைத்து ஓதுனர்களுக்கும் இம்மையிலும் மறுமையிலும்<br>உயர்ந்த அந்தஸ்தை வழங்குவாயாக்!';
+
+        captureDiv.innerHTML =
+            '<div style="width:480px; background:linear-gradient(180deg, #161b22 0%, #0d1117 100%); padding:24px; box-sizing:border-box; font-family:Poppins, Arial, sans-serif;">' +
+            '<div style="height:4px; background:#2dd4bf; margin:-24px -24px 20px -24px;"></div>' +
+
+            // Header
+            '<div style="font-size:1.2rem; font-weight:700; color:#5eead4; text-align:center; margin-bottom:2px;">' +
+            'Hadiya Completed</div>' +
+            '<div style="font-size:0.9rem; font-weight:600; color:#5eead4; text-align:center; margin-bottom:8px;">' +
+            tHadiyaSub + '</div>' +
+
+            '<div style="text-align:center; font-size:0.7rem; color:#30363d; margin-bottom:8px;">' +
+            '——————————————————</div>' +
+
+            // Week - date range
+            '<div style="text-align:center; font-size:0.95rem; font-weight:700; color:#e6edf3; margin-bottom:16px;">' +
+            'Week / ' + tWeek + ': ' + cur.range + '</div>' +
+
+            // Tamil section
+            '<div style="text-align:center; font-size:0.85rem; color:#c9d1d9; line-height:1.6; margin-bottom:4px;">' +
+            tAlhamdulillah + '</div>' +
+            '<div style="text-align:center; font-size:0.85rem; color:#c9d1d9; line-height:1.6; margin-bottom:4px;">' +
+            tJazak + '</div>' +
+            '<div style="text-align:center; font-size:0.85rem; color:#c9d1d9; line-height:1.6; margin-bottom:16px;">' +
+            tDedicated + '</div>' +
+
+            // Member name - Tamil first, then English
+            '<div style="text-align:center; font-size:1.2rem; font-weight:700; color:#5eead4; margin-bottom:2px;">' +
+            (cur.ta || cur.en) + '</div>' +
+            '<div style="text-align:center; font-size:1rem; font-weight:600; color:#c9d1d9; margin-bottom:12px;">' +
+            cur.en + '</div>' +
+
+            dedHtml +
+
+            // English section
+            '<div style="text-align:center; font-size:0.85rem; color:#c9d1d9; line-height:1.6; margin-bottom:4px;">' +
+            'Alhamdulillah, all assigned Juz recitations<br>for this week have been completed<br>successfully on time!</div>' +
+            '<div style="text-align:center; font-size:0.85rem; color:#c9d1d9; line-height:1.6; margin-bottom:4px;">' +
+            'Jazakumullahu Khairan for your swift dedication!</div>' +
+            '<div style="text-align:center; font-size:0.85rem; color:#c9d1d9; line-height:1.6; margin-bottom:16px;">' +
+            'The Khatam Hadiya is dedicated to and<br>completed by the above member.</div>' +
+
+            '<div style="text-align:center; font-size:0.7rem; color:#30363d; margin-bottom:12px;">' +
+            '——————————————————</div>' +
+
+            // Dua - Tamil
+            '<div style="text-align:center; font-size:0.8rem; color:#8b949e; line-height:1.6; margin-bottom:12px;">' +
+            tDua + '</div>' +
+
+            // Dua - English
+            '<div style="text-align:center; font-size:0.75rem; color:#8b949e; line-height:1.5; margin-bottom:16px;">' +
+            'May Allah accept our combined efforts,<br>grant immense barakah to everyone involved,<br>and reward all readers with the highest<br>ranks in Dunya and Akhirah.</div>' +
+
+            '<div style="text-align:center; font-size:0.7rem; color:#30363d;">— Inainthu Othuvom —</div>' +
+            '</div>';
+
+        captureDiv.style.display = 'block';
+        captureElementToClipboard(captureDiv, hadiyaBtn, "Hadiya Note 📋", "Hadiya note copied as image!");
+        setTimeout(function() { captureDiv.style.display = 'none'; captureDiv.innerHTML = ''; }, 1000);
+    }
+
+    function closeReportModal() {
+        document.getElementById('reportModal').style.display = "none";
+        if (bulkMode) toggleBulkMode();
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('reportModal');
+        const reassignModal = document.getElementById('reassignModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+        if (event.target == reassignModal) {
+            reassignModal.style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>
