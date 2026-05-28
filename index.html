@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inainthu Othuvom - Supabase</title>
+    <base target="_top">
+    <!-- Google Fonts Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- html2canvas for capturing elements -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- Supabase JS Client Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    
+    <!-- Central Stylesheet -->
+    <link rel="stylesheet" href="/public_app.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="hadiya-note-title">Inainthu Othuvom</div>
+    <h2>இனைந்து ஓதுவோம்</h2>
+    
+    <div class="hadiya-container" id="hadiyaBox" style="display:none;">
+        <span class="hadiya-title">This Week's Hadiya <br> இந்த வார ஹதியா</span>
+        <div id="hadCurrent" class="hadiya-main">Loading...</div>
+        
+        <div class="hadiya-grid">
+            <div class="small-hadiya" id="prevSection" style="display:none;">
+                <span class="hadiya-title" style="font-size:0.65rem">Previous Hadiya <br> கடந்த ஹதியா</span>
+                <div id="hadPrev"></div>
+            </div>
+            <div class="small-hadiya" id="nextSection">
+                <span class="hadiya-title" style="font-size:0.65rem">Next Hadiya <br> அடுத்த ஹதியா</span>
+                <div id="hadNext"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Selected Date <br> தேதியைத் தேர்ந்தெடுக்கவும்</label>
+        <input type="date" id="dateInput">
+    </div>
+
+    <div class="form-group">
+        <label>Select Name <br> பெயரைத் தேர்ந்தெடுக்கவும்</label>
+        <div class="searchable-select-container">
+            <input type="text" id="userSearch" class="search-input" placeholder="Type to search..." autocomplete="off" onfocus="openUserDropdown()" oninput="filterUserOptions()" onblur="setTimeout(closeUserDropdown, 200)" value="">
+            <div class="searchable-dropdown" id="userDropdown"></div>
+            <input type="hidden" id="userSelect" value="">
+        </div>
+    </div>
+
+    <button id="submitBtn" onclick="submitQuery()" disabled>
+        Show My Assignment <br> எனது ஜுஸைக் காட்டு
+    </button>
+
+    <button id="reportBtn" class="btn-secondary" onclick="openReportModal()">
+        View Weekly Report <br> வாராந்திர அறிக்கை
+    </button>
+    
+    <div id="loader">Fetching data...</div>
+
+    <div id="result">
+        <div id="weekInfo" class="juz-badge"></div>
+        
+        <div class="data-row">
+            <label>Arabic / உருது</label>
+            <span id="resAr" class="val-arabic"></span>
+        </div>
+
+        <div class="data-row">
+            <label>English / ஆங்கிலம்</label>
+            <span id="resEn" class="val-eng"></span>
+        </div>
+
+        <div class="data-row">
+            <label>Tamil / தமிழ்</label>
+            <span id="resTa" class="val-tam"></span>
+        </div>
+
+        <div class="status-box" id="statusBoxContainer">
+            <div class="status-header">
+                <h3>Status <br> நிலை</h3>
+                <div>
+                    <button class="btn-unlock" id="unlockBtn" onclick="enableStatusEditing()">Edit</button>
+                    <button class="btn-close-edit" id="closeEditBtn" onclick="cancelStatusEditing()">Close / ரத்து செய்</button>
+                </div>
+            </div>
+            
+            <div class="status-display-banner" id="statusTextDisplay"></div>
+            
+            <div class="support-info-widget" id="mainSupportWidget">
+                <div class="support-header-row">
+                    <div id="supportDetailsBanner"></div>
+                    <div>
+                        <button class="btn-unlock-support" id="unlockSupportBtn" onclick="enableSupportStatusEditing()">Edit Support</button>
+                        <button class="btn-close-support-edit" id="closeSupportEditBtn" onclick="cancelSupportStatusEditing()">Close / ரத்து செய்</button>
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:4px;">
+                    <button class="time-toggle-btn" id="supportTimeToggle" onclick="toggleTimePicker('support')" style="display:none">⏱ Set Time / நேரம்</button>
+                </div>
+                <div class="time-picker-row" id="supportTimePickerRow">
+                    <input type="datetime-local" id="supportCustomTime">
+                    <button class="time-reset-btn" onclick="resetCustomTime('support')">Now / இப்போது</button>
+                </div>
+                <div class="support-buttons-grid" id="supportButtonsGroup" style="display: none;">
+                    <button class="btn-support-status-completed" id="supportCompletedBtn" onclick="submitSupportStatusDirect('Completed')">
+                        Completed ✅
+                    </button>
+                    <button class="btn-support-status-reciting" id="supportRecitingBtn" onclick="submitSupportStatusDirect('Reciting')">
+                        Reciting 🔄
+                    </button>
+                </div>
+            </div>
+            
+            <div class="future-lock-banner" id="futureScheduleLockBanner">
+                🔒 Updates are not allowed for future schedules.<br>எதிர்கால தேதிகளுக்கு நிலையை புதுப்பிக்க இயலாது.
+            </div>
+
+            <div style="text-align:right; margin-top:6px;">
+                <button class="time-toggle-btn" id="mainTimeToggle" onclick="toggleTimePicker('main')" style="display:none">⏱ Set Time / நேரம்</button>
+            </div>
+            <div class="time-picker-row" id="mainTimePickerRow">
+                <input type="datetime-local" id="mainCustomTime">
+                <button class="time-reset-btn" onclick="resetCustomTime('main')">Now / இப்போது</button>
+            </div>
+            <div class="status-buttons-container" id="statusButtonsGroup" style="display: none;">
+                <button class="btn-status-completed" id="completedActionBtn" onclick="submitDirectStatus('Completed')">
+                    Completed <br> நிறைவேற்றபட்டது ✓
+                </button>
+                <button class="btn-status-reciting" id="recitingActionBtn" onclick="submitDirectStatus('Reciting')">
+                    Reciting <br> ஓதிக்கொண்டிருக்கிறேன் 🔄
+                </button>
+                <button class="btn-status-exception" id="exceptionActionBtn" onclick="submitDirectStatus('Exception Raised')">
+                    Exception <br> விதிவிலக்கு ⚠️
+                </button>
+            </div>
+            
+            <span id="lastModLabel" class="last-modified-lbl"></span>
+        </div>
+    </div>
+
+    <div id="toastSnackbar" class="snackbar">This is a snackbar notification!</div>
+
+ </div> 
+ 
+ <div id="reportModal" class="modal">
+    <div class="modal-content" style="width:100%;max-width:100%;height:100vh;max-height:100vh;margin:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:#161b22;overflow-x:hidden;">
+        <div style="text-align:right;padding:8px 16px 0;flex:0 0 auto;">
+            <span class="close-btn" onclick="closeReportModal()">&times;</span>
+        </div>
+        <div class="group-box" style="border-top:1px solid #21262d;border-bottom:1px solid #21262d;padding:10px 14px;flex:0 0 auto;max-height:30vh;overflow-y:auto;">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                <button id="shareBtn" class="btn-share" onclick="copyReportToClipboard()" style="margin-top:0;flex:1;min-width:80px;padding:10px;font-size:0.8rem;">
+                    Copy Report 📋
+                </button>
+                <button id="hadiyaShareBtn" class="btn-hadiya-share" onclick="copyHadiyaNoteToClipboard()" style="margin-top:0;flex:1;min-width:80px;padding:10px;font-size:0.8rem;">
+                    Hadiya Note 📋
+                </button>
+                <button id="searchToggleBtn" onclick="toggleSearchBar()" style="margin-top:0;width:auto;flex:none;background:none;border:2px solid #30363d;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:8px;" title="Search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x1="16.65" y2="16.65" y1="21"/></svg>
+                </button>
+                <button id="bulkToggleBtn" class="btn-bulk-toggle" onclick="toggleBulkMode()" style="margin-top:0;flex:0.5;min-width:70px;padding:8px;font-size:0.8rem;">
+                    Bulk ⚡
+                </button>
+            </div>
+            <div class="filter-buttons" id="reportFilterButtons" style="margin-bottom:0;">
+                <button class="filter-btn active" data-filter="ALL" onclick="applyReportFilter('ALL')">All <br> அனைவர்</button>
+                <button class="filter-btn" data-filter="Completed" onclick="applyReportFilter('Completed')">Completed <br> முடித்தவர்</button>
+                <button class="filter-btn" data-filter="Reciting" onclick="applyReportFilter('Reciting')">Reciting <br> ஓதுபவர்</button>
+                <button class="filter-btn" data-filter="EXCEPTION_ALL" onclick="applyReportFilter('EXCEPTION_ALL')">Exception <br> விலக்கு</button>
+            </div>
+            <div class="bulk-panel" id="bulkPanel" style="margin-top:6px;">
+                <button style="background:#21262d;border:none;border-radius:8px;color:#c9d1d9;font-size:0.8rem;font-weight:600;padding:8px 10px;cursor:pointer;font-family:inherit;margin-top:0;width:auto;" onclick="toggleSelectAll()">Select All</button>
+                <button class="btn-bulk-apply" id="bulkApplyBtn" onclick="openBulkStep2()" disabled>Process 0</button>
+            </div>
+        </div>
+        <div id="reportCaptureArea" style="border-top:1px solid #21262d;flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 14px;">
+            <div class="modal-header" style="border-bottom:2px solid #21262d;padding-bottom:12px;margin-bottom:10px;">
+                <span class="modal-title" id="reportTitle">
+                    <span>Week / வாரம்</span>
+                    <span class="report-count-badge" id="reportCountBadge">Showing 0 of 0</span>
+                </span>
+            </div>
+            <input type="text" id="reportSearchInput" class="report-search" placeholder="Search by name / பெயரால் தேட..." oninput="applyReportFilter()" onfocus="scrollReportToResults()" style="display:none;margin-bottom:8px;">
+
+            <div id="reportTableWrapper" style="overflow-x:hidden;">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th class="bulk-checkbox-cell report-bulk-th" style="display:none;width:32px;padding:4px!important;text-align:center;"></th>
+                            <th style="width: 38%" onclick="sortReportData('name')">Name <br> பெயர்<span class="sort-indicator" id="sortIndicatorName"></span></th>
+                            <th style="width: 27%; padding-left: 20px;" onclick="sortReportData('juz')">Juz <br> ஜுஸ்<span class="sort-indicator" id="sortIndicatorJuz"></span></th>
+                            <th style="width: 35%" onclick="sortReportData('status')">Status <br> நிலை<span class="sort-indicator" id="sortIndicatorStatus"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align:center;">Loading report card data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="hadiyaCaptureArea" style="display:none;"><div class="hadiya-container" style="margin:0;border-radius:0;">
+    <span class="hadiya-title">This Week's Hadiya <br> இந்த வார ஹதியா</span>
+    <div id="hadCurrentCapture" class="hadiya-main">Loading...</div>
+    <div class="hadiya-grid">
+        <div class="small-hadiya"><span class="hadiya-title" style="font-size:0.65rem">Previous Hadiya <br> கடந்த ஹதியா</span><div id="hadPrevCapture"></div></div>
+        <div class="small-hadiya"><span class="hadiya-title" style="font-size:0.65rem">Next Hadiya <br> அடுத்த ஹதியா</span><div id="hadNextCapture"></div></div>
+    </div>
+</div></div>
+
+<div class="confirm-overlay" id="bulkStep2Overlay">
+    <div class="confirm-box" style="max-width:380px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="margin:0;color:#5eead4;font-size:1rem;font-weight:600;">Bulk Update — Step 2</h3>
+            <span class="close-btn" onclick="closeBulkStep2()" style="font-size:1.5rem;">&times;</span>
+        </div>
+        <div id="bulkStep2Info" style="font-size:0.85rem;color:#8b949e;margin-bottom:10px;">Loading...</div>
+        <div class="confirm-list" id="bulkStep2List" style="max-height:120px;"></div>
+        <div style="margin:14px 0 10px;font-weight:600;color:#c9d1d9;font-size:0.9rem;">Set status to:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn-status-completed" onclick="selectBulkStatus('Completed')" style="flex:1;min-width:100px;margin-top:0;padding:12px 8px;font-size:0.85rem;">Completed ✓</button>
+            <button class="btn-status-reciting" onclick="selectBulkStatus('Reciting')" style="flex:1;min-width:100px;margin-top:0;padding:12px 8px;font-size:0.85rem;">Reciting 🔄</button>
+            <button class="btn-status-exception" onclick="selectBulkStatus('Exception Raised')" style="flex:1;min-width:100px;margin-top:0;padding:12px 8px;font-size:0.85rem;">Exception ⚠️</button>
+        </div>
+        <div style="text-align:right;margin-top:8px;">
+            <button class="time-toggle-btn" id="bulkstep2TimeToggle" onclick="toggleTimePicker('bulkstep2')" style="font-size:0.8rem;padding:4px 10px;">⏱ Set Time / நேரம்</button>
+        </div>
+        <div class="time-picker-row" id="bulkstep2TimePickerRow">
+            <input type="datetime-local" id="bulkstep2CustomTime">
+            <button class="time-reset-btn" onclick="resetCustomTime('bulkstep2')">Now / இப்போது</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-confirm-no" onclick="closeBulkStep2()" style="flex:1;padding:10px;">Back / பின்</button>
+            <button class="btn-confirm-yes" id="bulkStep2ConfirmBtn" onclick="openBulkConfirm()" style="flex:1;padding:10px;" disabled>Continue</button>
+        </div>
+    </div>
+</div>
+
+<div class="confirm-overlay" id="bulkConfirmOverlay">
+    <div class="confirm-box">
+        <h3>⚠️ Confirm</h3>
+        <div id="bulkConfirmInfo" style="font-size:0.9rem; color:#c9d1d9; margin-bottom:8px;"></div>
+        <div class="confirm-list" id="bulkConfirmList"></div>
+        <div class="confirm-actions">
+            <button class="btn-confirm-no" onclick="closeBulkConfirm()">Cancel / ரத்து</button>
+            <button class="btn-confirm-yes" id="bulkConfirmYesBtn" onclick="executeBulkUpdate()">Confirm / உறுதி</button>
+        </div>
+    </div>
+</div>
+
+<div id="reportEditModal" class="modal">
+    <div class="modal-content" style="max-width:360px;">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:5px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1rem; color:#5eead4;">Update Status / நிலை மாற்ற</span>
+            <span class="close-btn" onclick="closeReportEditModal()">&times;</span>
+        </div>
+        <div style="margin-bottom:15px;">
+            <div style="font-weight:600; color:#e6edf3;" id="reportEditName"></div>
+            <div style="font-size:0.8rem; color:#8b949e; margin-top:4px;">Current: <span id="reportEditCurrentStatus"></span></div>
+        </div>
+        <div style="text-align:right; margin-top:8px;">
+            <button class="time-toggle-btn" id="reportTimeToggle" onclick="toggleTimePicker('report')">⏱ Set Time / நேரம்</button>
+        </div>
+        <div class="time-picker-row" id="reportTimePickerRow">
+            <input type="datetime-local" id="reportCustomTime">
+            <button class="time-reset-btn" onclick="resetCustomTime('report')">Now / இப்போது</button>
+        </div>
+        <button class="btn-status-completed status-btn" onclick="submitReportEditStatus('Completed')" style="margin-top:0; padding:12px;">Completed ✓</button>
+        <button class="btn-status-reciting status-btn" onclick="submitReportEditStatus('Reciting')" style="margin-top:8px; padding:12px;">Reciting 🔄</button>
+        <button class="btn-status-exception status-btn" onclick="submitReportEditStatus('Exception Raised')" style="margin-top:8px; padding:12px;">Exception ⚠️</button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeReportEditModal()">Back ←</button>
+    </div>
+</div>
+
+<div id="dedicationModal" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:5px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1rem; color:#d29922;">🎯 Change Dedication <br> அர்ப்பணிப்பை மாற்ற</span>
+            <span class="close-btn" onclick="closeDedicationModal()">&times;</span>
+        </div>
+        <div style="font-size:0.8rem; color:#8b949e; margin-bottom:10px;">Select someone or type a custom name <br> ஒருவரைத் தேர்ந்தெடுக்கவும் அல்லது பெயரை உள்ளிடவும்</div>
+        <select id="dedicationUserSelect" onchange="onDedicationUserSelect()" style="margin-bottom:8px;">
+            <option value="">-- Select / தேர்ந்தெடு --</option>
+        </select>
+        <div style="font-size:0.75rem; color:#8b949e; text-align:center; margin:4px 0;">— OR / அல்லது —</div>
+        <input type="text" id="dedicationCustomInput" placeholder="Custom name / பெயர்..." oninput="onDedicationCustomInput()" style="margin-top:4px;">
+        <button id="saveDedicationBtn" onclick="saveDedication()" style="margin-top:10px; padding:12px; background:#bb8009;">Save Dedication <br> அர்பணிப்புச் சேமி</button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeDedicationModal()">Back ←<br> பின்</button>
+    </div>
+</div>
+
+<div id="hadiyaEditModal" class="modal">
+    <div class="modal-content" style="max-width:380px;">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:5px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1rem; color:#5eead4;">Edit Hadiya / ஹதியாவை மாற்ற</span>
+            <span class="close-btn" onclick="closeHadiyaEditModal()">&times;</span>
+        </div>
+        <div style="margin-bottom:15px;">
+            <div id="hadiyaEditNominee" style="font-weight:600; color:#e6edf3;"></div>
+            <div style="font-size:0.8rem; color:#8b949e; margin-top:4px;">Status: <span id="hadiyaEditStatus"></span></div>
+        </div>
+        <button class="btn-status-completed status-btn" onclick="submitHadiyaEditComplete()" style="margin-top:0; padding:12px;">✅ Completed <br> நிறைவேறியது</button>
+        <button class="btn-status-reciting status-btn" onclick="openHadiyaEditDedication()" style="margin-top:8px; padding:12px;">🎯 Change Dedication <br> அர்ப்பணிப்பை மாற்று </button>
+        <hr style="border:none;border-top:1px solid #21262d;margin:12px 0;">
+        <div style="font-size:0.8rem;color:#8b949e;margin-bottom:8px;font-weight:600;">Schedule Times / நேர அமைப்புகள்</div>
+        <div id="hadiyaScheduleTimeAlert" style="font-size:0.75rem;color:#f87171;margin-bottom:6px;"></div>
+        <div style="margin-bottom:8px;">
+            <label style="font-size:0.75rem;color:#c9d1d9;display:block;margin-bottom:4px;">Countdown Deadline</label>
+            <input type="datetime-local" id="hadiyaDeadlineInput" style="width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:10px;font-size:0.85rem;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:8px;">
+            <label style="font-size:0.75rem;color:#c9d1d9;display:block;margin-bottom:4px;">Next Hadiya Start</label>
+            <input type="datetime-local" id="hadiyaNextStartInput" style="width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:10px;font-size:0.85rem;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <button id="hadiyaConfigSaveBtn" onclick="saveHadiyaScheduleTimes()" style="margin-top:4px;width:100%;padding:10px;font-size:0.8rem;background:#2e7d32;border:none;border-radius:8px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;">Save Schedule Times<br>நேரத்தை சேமிக்க</button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeHadiyaEditModal()">Back ←<br> பின்</button>
+    </div>
+</div>
+
+<div id="reassignModal" class="modal">
+    <div class="modal-content reassign-modal-content">
+        <div class="modal-header" style="border-bottom:none; margin-bottom:10px; padding-bottom:0;">
+            <span class="modal-title" style="font-size:1.15rem; color:#f87171;">⚠️ Exception Registered</span>
+            <span class="close-btn" onclick="closeReassignModal()">&times;</span>
+        </div>
+        
+        <div class="reassign-meta-info" id="reassignMetaText">
+            Loading assignment details...
+        </div>
+
+        <div class="form-group">
+            <label style="font-size:0.85rem;">Backup Reader <br> ஆதரவு வாசகர்</label>
+            <select id="supportUserSelect">
+                <option value="">Select Support Partner...</option>
+            </select>
+        </div>
+
+        <button id="reassignBtn" onclick="submitReassignment()">
+            Assign Reciting Partner <br> உதவி வாசகரை நியமி
+        </button>
+        <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeReassignModal()">
+            Skip <br> பின்னர் செய்வேன்
+        </button>
+    </div>
+</div>
+
+<!-- Central Application Script -->
+<script src="/public_app.js" defer></script>
+</body>
+</html>
