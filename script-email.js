@@ -90,10 +90,10 @@
         };
 
         // Template mapping:
-        //   Exception Raised -> template_j5w4t0k (has support_reader / support_status fields)
-        //   Everything else (Completed, support_assigned, support_completed, status_changed) -> template_hd4fbhs (no support fields)
-        var isException = (params.actionType === 'exception');
-        var templateId = isException ? EMAILJS_CONFIG.exceptionTemplateId : EMAILJS_CONFIG.generalUpdateTemplateId;
+        //   Exception Raised, Support Assigned, Support Completed -> template_j5w4t0k (has support_reader / support_status fields)
+        //   Completed, status_changed -> template_hd4fbhs (no support fields)
+        var usesSupportTemplate = (params.actionType === 'exception' || params.actionType === 'support_assigned' || params.actionType === 'support_completed');
+        var templateId = usesSupportTemplate ? EMAILJS_CONFIG.exceptionTemplateId : EMAILJS_CONFIG.generalUpdateTemplateId;
 
         // Add subject line based on action type
         var subject = 'Inainthu Othuvom - ';
@@ -106,8 +106,8 @@
         }
         templateParams.subject = subject;
 
-        // Add support reader fields ONLY for Exception template (j5w4t0k has these fields)
-        if (isException) {
+        // Add support reader fields for templates that use support fields (j5w4t0k)
+        if (usesSupportTemplate) {
             templateParams.support_reader_english = params.supportReader || '';
             templateParams.support_reader_tamil = params.supportReader || '';
             templateParams.support_status_english = (params.actionType === 'support_completed' ? 'Completed' : 'Reciting');
