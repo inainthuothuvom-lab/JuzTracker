@@ -610,7 +610,7 @@
                                             userTamilName: readerTaName,
                                             juz: juzNum,
                                             week: formatDateDDMMMYYYY(monday),
-                                            status: newSupportStatus === 'Completed' ? 'Completed' : 'Support Updated',
+                                            status: newSupportStatus,
                                             oldStatus: oldSupStatus,
                                             actionType: newSupportStatus === 'Completed' ? 'support_completed' : 'status_changed',
                                             supportReader: supEnName,
