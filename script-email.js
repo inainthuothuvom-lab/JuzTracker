@@ -24,7 +24,8 @@
     var EMAILJS_CONFIG = {
         publicKey: 'zvp-rNo55tW_eQY6K',   // Get from EmailJS Dashboard
         serviceId: 'service_loz60yl',     // Your Email Service ID
-        templateId: 'template_j5w4t0k',  // Your Email Template ID
+        defaultTemplateId: 'template_j5w4t0k',   // Default template
+        exceptionTemplateId: 'template_hd4fbhs'  // Exception/support template
     };
 
     // Admin and select members who receive notifications
@@ -62,7 +63,6 @@
      * @param {Object} params - Email parameters
      */
     function sendAdminNotification(params) {
-        var emoji = (params.actionType === 'completed' ? '✅' : params.actionType === 'exception' ? '⚠️' : params.actionType === 'support_assigned' ? '🤝' : '📋');
         var tamilStatus = function(s) {
             var map = {'Completed': 'நிறைவேற்றப்பட்டது', 'Reciting': 'ஓதிக்கொண்டிருக்கிறார்', 'Exception Raised': 'விதிவிலக்கு', 'Not Started': 'தொடங்கவில்லை'};
             return map[s] || s;
@@ -73,6 +73,7 @@
             return d.toLocaleString('en-IN', {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
         };
 
+        // Common template params for both templates
         var templateParams = {
             to_email: NOTIFICATION_RECIPIENTS.admin,
             reader_english: params.userName || 'Unknown',
@@ -88,7 +89,19 @@
             Dashboard_Link: 'https://tinyurl.com/InainthuOthuvom'
         };
 
-        return sendEmail(templateParams);
+        // Select template based on action type
+        var isExceptionRelated = (params.actionType === 'exception' || params.actionType === 'support_assigned' || params.actionType === 'support_completed');
+        var templateId = isExceptionRelated ? EMAILJS_CONFIG.exceptionTemplateId : EMAILJS_CONFIG.defaultTemplateId;
+
+        // Add support reader fields for exception template
+        if (isExceptionRelated) {
+            templateParams.support_reader_english = params.supportReader || '';
+            templateParams.support_reader_tamil = params.supportReader || '';
+            templateParams.support_status_english = (params.actionType === 'support_completed' ? 'Completed' : 'Reciting');
+            templateParams.support_status_tamil = (params.actionType === 'support_completed' ? 'நிறைவேற்றப்பட்டது' : 'ஓதிக்கொண்டிருக்கிறார்');
+        }
+
+        return sendEmail(templateParams, templateId);
     }
 
     /**
@@ -291,15 +304,17 @@
     /**
      * Core email sending function
      * @param {Object} templateParams - Template parameters for EmailJS
+     * @param {String} templateId - EmailJS template ID (optional, uses default if not provided)
      */
-    function sendEmail(templateParams) {
+    function sendEmail(templateParams, templateId) {
         return new Promise(function(resolve, reject) {
             if (typeof emailjs === 'undefined') {
                 reject(new Error('EmailJS not initialized'));
                 return;
             }
 
-            emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, templateParams)
+            var tid = templateId || EMAILJS_CONFIG.defaultTemplateId;
+            emailjs.send(EMAILJS_CONFIG.serviceId, tid, templateParams)
                 .then(function(response) {
                     console.log('Email sent successfully!', response.status, response.text);
                     resolve({ success: true, response: response });
