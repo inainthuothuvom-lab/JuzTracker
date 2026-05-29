@@ -507,22 +507,24 @@
                                 var notableStatuses = ['Completed', 'Exception Raised'];
                                 if (notableStatuses.includes(statusUpdate) || notableStatuses.includes(oldStatus)) {
                                     try {
-                                        var names = (nameEn || '').split('|');
-                                        var enName = (names[0] || '').trim();
-                                        var taName = (names[1] || names[0] || '').trim();
-                                        var emailData = {
-                                            userName: enName,
-                                            userTamilName: taName,
-                                            juz: String(juzNum),
-                                            week: formatDateDDMMMYYYY(monday),
-                                            status: statusUpdate,
-                                            oldStatus: oldStatus,
-                                            actionType: statusUpdate === 'Completed' ? 'completed' : statusUpdate === 'Exception Raised' ? 'exception' : 'status_changed',
-                                            timestamp: timestamp
-                                        };
-                                        if (typeof EmailService !== 'undefined') {
-                                            EmailService.sendAdminNotification(emailData);
-                                        }
+                                        var enName = (nameEn || '').split('|')[0].trim() || 'Unknown';
+                                        // Look up Tamil name from members table
+                                        _supabase.from('members').select('name_ta').eq('id', userId).single().then(function(rTa) {
+                                            var taName = rTa.data ? rTa.data.name_ta : enName;
+                                            var emailData = {
+                                                userName: enName,
+                                                userTamilName: taName,
+                                                juz: String(juzNum),
+                                                week: formatDateDDMMMYYYY(monday),
+                                                status: statusUpdate,
+                                                oldStatus: oldStatus,
+                                                actionType: statusUpdate === 'Completed' ? 'completed' : statusUpdate === 'Exception Raised' ? 'exception' : 'status_changed',
+                                                timestamp: timestamp
+                                            };
+                                            if (typeof EmailService !== 'undefined') {
+                                                EmailService.sendAdminNotification(emailData);
+                                            }
+                                        });
                                     } catch(emailErr) {
                                         console.error('Email notification failed:', emailErr);
                                     }
@@ -585,31 +587,40 @@
                             if (newSupportStatus === 'Completed' || oldSupStatus === 'Completed') {
                                 try {
                                     var memberName = existing.member_name || '';
-                                    var names = memberName.split('|');
-                                    var enName = (names[0] || '').trim();
-                                    var taName = (names[1] || names[0] || '').trim();
+                                    var enName = memberName.split('|')[0].trim() || memberName.trim();
                                     var supportName = existing.supported_by_name || 'Support Reader';
-                                    var supNames = supportName.split('|');
-                                    var supEnName = (supNames[0] || 'Support').trim();
-                                    var supTaName = (supNames[1] || supNames[0] || 'Support').trim();
+                                    var supEnName = supportName.split('|')[0].trim() || 'Support';
                                     
                                     // Juz number comes from the existing record directly
                                     var juzNum = existing.juz_number ? String(existing.juz_number) : '-';
-                                    var emailData = {
-                                        userName: enName,
-                                        userTamilName: taName,
-                                        juz: juzNum,
-                                        week: formatDateDDMMMYYYY(monday),
-                                        status: newSupportStatus === 'Completed' ? 'Completed' : 'Support Updated',
-                                        oldStatus: oldSupStatus,
-                                        actionType: newSupportStatus === 'Completed' ? 'support_completed' : 'status_changed',
-                                        supportReader: supEnName,
-                                        supportReaderTamil: supTaName,
-                                        timestamp: timestamp
-                                    };
-                                    if (typeof EmailService !== 'undefined') {
-                                        EmailService.sendAdminNotification(emailData);
-                                    }
+                                    
+                                    // Look up Tamil names from members table
+                                    var readerId = existing.member_id;
+                                    var supId = existing.supported_by_id || '';
+                                    
+                                    Promise.all([
+                                        _supabase.from('members').select('name_ta').eq('id', readerId).single(),
+                                        supId ? _supabase.from('members').select('name_ta').eq('id', supId).single() : Promise.resolve({ data: null })
+                                    ]).then(function(results) {
+                                        var readerTaName = results[0].data ? results[0].data.name_ta : enName;
+                                        var supTaName = results[1].data ? results[1].data.name_ta : supEnName;
+                                        
+                                        var emailData = {
+                                            userName: enName,
+                                            userTamilName: readerTaName,
+                                            juz: juzNum,
+                                            week: formatDateDDMMMYYYY(monday),
+                                            status: newSupportStatus === 'Completed' ? 'Completed' : 'Support Updated',
+                                            oldStatus: oldSupStatus,
+                                            actionType: newSupportStatus === 'Completed' ? 'support_completed' : 'status_changed',
+                                            supportReader: supEnName,
+                                            supportReaderTamil: supTaName,
+                                            timestamp: timestamp
+                                        };
+                                        if (typeof EmailService !== 'undefined') {
+                                            EmailService.sendAdminNotification(emailData);
+                                        }
+                                    });
                                 } catch(emailErr) {
                                     console.error('Email notification failed:', emailErr);
                                 }
@@ -651,27 +662,30 @@
                                 // Send email notification for support assignment
                                 try {
                                     var memberName = existing.member_name || '';
-                                    var names = memberName.split('|');
-                                    var enName = (names[0] || '').trim();
-                                    var taName = (names[1] || names[0] || '').trim();
+                                    var enName = memberName.split('|')[0].trim() || 'Unknown';
                                     var supNames = (supName || '').split('|');
                                     var supEnName = (supNames[0] || 'Support').trim();
                                     var supTaName = (supNames[1] || supNames[0] || 'Support').trim();
-                                    var emailData = {
-                                        userName: enName,
-                                        userTamilName: taName,
-                                        juz: String(existing.juz_number || '-'),
-                                        week: formatDateDDMMMYYYY(monday),
-                                        status: existing.status || 'Exception Raised',
-                                        oldStatus: existing.status || '',
-                                        actionType: 'support_assigned',
-                                        supportReader: supEnName,
-                                        supportReaderTamil: supTaName,
-                                        timestamp: timestamp
-                                    };
-                                    if (typeof EmailService !== 'undefined') {
-                                        EmailService.sendAdminNotification(emailData);
-                                    }
+                                    
+                                    // Look up reader's Tamil name from members table
+                                    _supabase.from('members').select('name_ta').eq('id', userId).single().then(function(rTa) {
+                                        var taName = rTa.data ? rTa.data.name_ta : enName;
+                                        var emailData = {
+                                            userName: enName,
+                                            userTamilName: taName,
+                                            juz: String(existing.juz_number || '-'),
+                                            week: formatDateDDMMMYYYY(monday),
+                                            status: existing.status || 'Exception Raised',
+                                            oldStatus: existing.status || '',
+                                            actionType: 'support_assigned',
+                                            supportReader: supEnName,
+                                            supportReaderTamil: supTaName,
+                                            timestamp: timestamp
+                                        };
+                                        if (typeof EmailService !== 'undefined') {
+                                            EmailService.sendAdminNotification(emailData);
+                                        }
+                                    });
                                 } catch(emailErr) {
                                     console.error('Email notification failed:', emailErr);
                                 }
