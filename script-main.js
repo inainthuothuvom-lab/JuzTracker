@@ -376,6 +376,34 @@ function submitDirectStatus(statusVal) {
                 }
             } else {
                 showSnackbar("Status updated successfully!", false);
+                
+                // Send email notification
+                var userName = document.getElementById('userSearch').value;
+                if (typeof EmailService !== 'undefined') {
+                    if (statusVal === "Completed") {
+                        EmailService.sendCompletedNotification({
+                            userName: userName,
+                            userTamilName: document.getElementById('userSearch').value.split(' | ')[1] || '',
+                            juz: currentActiveJuzNumber,
+                            week: weekVal,
+                            timestamp: customTime || new Date().toISOString()
+                        }).catch(function(err) {
+                            console.log('Email notification sent (or failed):', err);
+                        });
+                    } else if (statusVal === "Exception Raised") {
+                        EmailService.sendExceptionNotification({
+                            userName: userName,
+                            userTamilName: document.getElementById('userSearch').value.split(' | ')[1] || '',
+                            juz: currentActiveJuzNumber,
+                            week: weekVal,
+                            timestamp: customTime || new Date().toISOString()
+                        }).catch(function(err) {
+                            console.log('Email notification sent (or failed):', err);
+                        });
+                    }
+                } else {
+                    console.warn('EmailService not available - email notifications disabled');
+                }
             }
         } else {
             showSnackbar("Failed to update status: " + response.error, true);
