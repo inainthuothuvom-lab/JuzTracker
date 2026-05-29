@@ -64,9 +64,65 @@
             findJuzAssignment: function(userId, selectedDate) {
                 var self = this;
                 var inputDate = new Date(selectedDate); inputDate.setHours(0,0,0,0,0);
-                // Friday 10PM cutoff
-                // Find latest weekly_status row before/on inputDate
-                _supabase.from('weekly_status').select('week_start,juz_number,member_name,status,completed_date_time,exception_raised_time,supported_by_name,supported_by_id,support_status').eq('member_id', userId).lte('week_start', formatLocalDate(inputDate)).order('week_start', { ascending: false }).limit(1).then(function(rStat) {
+                
+                // Apply Friday cutoff logic - if today is Friday before next hadiya start, use previous week
+                var now = new Date();
+                var IST_MS = 5.5 * 3600000;
+                var istNow = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + IST_MS);
+                var nowStr = formatLocalDate(istNow);
+                var isToday = selectedDate === nowStr;
+                
+                function fridayOf(dateStr) {
+                    var m = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    var d = m ? new Date(+m[1], +m[2]-1, +m[3]) : new Date(dateStr);
+                    d.setHours(0,0,0,0,0);
+                    if (isNaN(d.getTime())) return null;
+                    var day = d.getDay();
+                    var diff = (day >= 5) ? (day - 5) : (day + 2);
+                    var f = new Date(d); f.setDate(d.getDate() - diff);
+                    return formatLocalDate(f);
+                }
+                
+                var todayFriday = fridayOf(nowStr);
+                var prevFridayDate = new Date(todayFriday + 'T00:00:00');
+                prevFridayDate.setDate(prevFridayDate.getDate() - 7);
+                var prevFriday = formatLocalDate(prevFridayDate);
+                
+                // Query the previous week's next_hadiya_start_moment for cutoff
+                _supabase.from('hadiya_details').select('next_hadiya_start_moment').eq('start_date', prevFriday).limit(1).then(function(rH) {
+                    var cutoffTime = null;
+                    if (rH.data && rH.data.length > 0 && rH.data[0].next_hadiya_start_moment) {
+                        var raw = rH.data[0].next_hadiya_start_moment;
+                        var s = String(raw).trim().replace(' ', 'T');
+                        var hasTimezone = s.endsWith('Z') || /[\+\-]\d{2}:\d{2}$/.test(s) || /[\+\-]\d{4}$/.test(s);
+                        var d;
+                        if (hasTimezone) {
+                            d = new Date(s);
+                        } else {
+                            var p = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/);
+                            if (p) {
+                                d = new Date(+p[1], +p[2]-1, +p[3], +p[4], +p[5], +(p[6]||0));
+                            } else {
+                                d = new Date(s);
+                            }
+                        }
+                        if (!isNaN(d.getTime())) cutoffTime = d;
+                    }
+                    
+                    var isBeforeNextStart = cutoffTime && now.getTime() < cutoffTime.getTime();
+                    
+                    // Adjust inputDate if before cutoff and today is Friday
+                    var adjustedInputDate = inputDate;
+                    if (isBeforeNextStart && isToday) {
+                        var inputDay = inputDate.getDay();
+                        if (inputDay === 5) { // Friday
+                            adjustedInputDate = new Date(inputDate);
+                            adjustedInputDate.setDate(adjustedInputDate.getDate() - 7);
+                        }
+                    }
+                    
+                    // Find latest weekly_status row before/on adjustedInputDate
+                    _supabase.from('weekly_status').select('week_start,juz_number,member_name,status,completed_date_time,exception_raised_time,supported_by_name,supported_by_id,support_status').eq('member_id', userId).lte('week_start', formatLocalDate(adjustedInputDate)).order('week_start', { ascending: false }).limit(1).then(function(rStat) {
                     if (!rStat.data || rStat.data.length === 0) {
                         // No weekly_status row found — calculate Juz dynamically
                         _supabase.from('members').select('sequence').eq('id', userId).single().then(function(rSeq) {
@@ -141,6 +197,8 @@
                         };
                         if (_ok) _ok(result);
                     });
+                });
+                    return this;
                 });
                 return this;
             },
@@ -432,18 +490,44 @@
                                 upsertData.exception_raised_time = null;
                                 upsertData.supported_by_name = '';
                                 upsertData.supported_by_id = '';
-                                upsertData.support_status = 'Reciting';
+                                upsertData.support_status = '';
                             } else {
                                 upsertData.completed_date_time = null;
                                 upsertData.exception_raised_time = null;
                                 upsertData.supported_by_name = '';
                                 upsertData.supported_by_id = '';
-                                upsertData.support_status = 'Reciting';
+                                upsertData.support_status = '';
                             }
                             var newLog = '[' + timestamp + ' - ' + updaterEmail + '] Modified Status from \'' + oldStatus + '\' to \'' + statusUpdate + '\'';
                             upsertData.audit_log = existing ? (existing.audit_log || '') + '\n' + newLog : newLog;
                             _supabase.from('weekly_status').upsert(upsertData, { onConflict: 'week_start,member_id' }).then(function(rUp) {
                                 if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                                
+                                // Send email notification if status is Completed or Exception (or changing from those)
+                                var notableStatuses = ['Completed', 'Exception Raised'];
+                                if (notableStatuses.includes(statusUpdate) || notableStatuses.includes(oldStatus)) {
+                                    try {
+                                        var names = (nameEn || '').split('|');
+                                        var enName = (names[0] || '').trim();
+                                        var taName = (names[1] || names[0] || '').trim();
+                                        var emailData = {
+                                            userName: enName,
+                                            userTamilName: taName,
+                                            juz: String(juzNum),
+                                            week: formatDateDDMMMYYYY(monday),
+                                            status: statusUpdate,
+                                            oldStatus: oldStatus,
+                                            actionType: statusUpdate === 'Completed' ? 'completed' : statusUpdate === 'Exception Raised' ? 'exception' : 'status_changed',
+                                            timestamp: timestamp
+                                        };
+                                        if (typeof EmailService !== 'undefined') {
+                                            EmailService.sendAdminNotification(emailData);
+                                        }
+                                    } catch(emailErr) {
+                                        console.error('Email notification failed:', emailErr);
+                                    }
+                                }
+                                
                                 if (_ok) _ok({ success: true });
                             });
                         }
@@ -496,6 +580,40 @@
                         updateData.audit_log = (existing.audit_log || '') + '\n' + newLog;
                         _supabase.from('weekly_status').update(updateData).eq('week_start', monday).eq('member_id', userId).then(function(rUp) {
                             if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                            
+                            // Send email notification if support status is Completed (or changing from Completed)
+                            if (newSupportStatus === 'Completed' || oldSupStatus === 'Completed') {
+                                try {
+                                    var memberName = existing.member_name || '';
+                                    var names = memberName.split('|');
+                                    var enName = (names[0] || '').trim();
+                                    var taName = (names[1] || names[0] || '').trim();
+                                    var supportName = existing.supported_by_name || 'Support Reader';
+                                    var supNames = supportName.split('|');
+                                    var supEnName = (supNames[0] || 'Support').trim();
+                                    
+                                    _supabase.from('members').select('juz_number').eq('week_start', monday).eq('member_id', userId).single().then(function(rJuz) {
+                                        var juzNum = rJuz.data ? String(rJuz.data.juz_number) : '-';
+                                        var emailData = {
+                                            userName: enName,
+                                            userTamilName: taName,
+                                            juz: juzNum,
+                                            week: formatDateDDMMMYYYY(monday),
+                                            status: newSupportStatus === 'Completed' ? 'Support Completed' : 'Support Updated',
+                                            oldStatus: oldSupStatus,
+                                            actionType: newSupportStatus === 'Completed' ? 'support_completed' : 'status_changed',
+                                            supportReader: supEnName,
+                                            timestamp: timestamp
+                                        };
+                                        if (typeof EmailService !== 'undefined') {
+                                            EmailService.sendAdminNotification(emailData);
+                                        }
+                                    });
+                                } catch(emailErr) {
+                                    console.error('Email notification failed:', emailErr);
+                                }
+                            }
+                            
                             if (_ok) _ok({ success: true });
                         });
                     });
@@ -528,6 +646,33 @@
                             updateData.audit_log = (existing.audit_log || '') + '\n' + newLog;
                             _supabase.from('weekly_status').update(updateData).eq('week_start', monday).eq('member_id', userId).then(function(rUp) {
                                 if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
+                                
+                                // Send email notification for support assignment
+                                try {
+                                    var memberName = existing.member_name || '';
+                                    var names = memberName.split('|');
+                                    var enName = (names[0] || '').trim();
+                                    var taName = (names[1] || names[0] || '').trim();
+                                    var supNames = (supName || '').split('|');
+                                    var supEnName = (supNames[0] || 'Support').trim();
+                                    var emailData = {
+                                        userName: enName,
+                                        userTamilName: taName,
+                                        juz: String(existing.juz_number || '-'),
+                                        week: formatDateDDMMMYYYY(monday),
+                                        status: existing.status || 'Exception Raised',
+                                        oldStatus: existing.status || '',
+                                        actionType: 'support_assigned',
+                                        supportReader: supEnName,
+                                        timestamp: timestamp
+                                    };
+                                    if (typeof EmailService !== 'undefined') {
+                                        EmailService.sendAdminNotification(emailData);
+                                    }
+                                } catch(emailErr) {
+                                    console.error('Email notification failed:', emailErr);
+                                }
+                                
                                 if (_ok) _ok({ success: true, assignedName: supName });
                             });
                         });

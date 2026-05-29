@@ -1,0 +1,5 @@
+{
+  "git.defaultBranch": "main",
+  "git.confirmSync": true,
+  "git.pruneOnFetch": true
+}
