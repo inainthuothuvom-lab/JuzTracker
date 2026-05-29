@@ -62,23 +62,30 @@
      * @param {Object} params - Email parameters
      */
     function sendAdminNotification(params) {
-        var htmlBody = buildHTMLEmail(params);
-        var subject = 'Inainthu Othuvom - ' + (params.actionType === 'completed' ? '✅ Completed' : params.actionType === 'exception' ? '⚠️ Exception' : params.actionType === 'support_assigned' ? '🤝 Support Assigned' : '📋 Update') + ': Juz ' + (params.juz || '-') + ' - ' + (params.userName || 'Unknown');
+        var emoji = (params.actionType === 'completed' ? '✅' : params.actionType === 'exception' ? '⚠️' : params.actionType === 'support_assigned' ? '🤝' : '📋');
+        var tamilStatus = function(s) {
+            var map = {'Completed': 'நிறைவேற்றப்பட்டது', 'Reciting': 'ஓதிக்கொண்டிருக்கிறார்', 'Exception Raised': 'விதிவிலக்கு', 'Not Started': 'தொடங்கவில்லை'};
+            return map[s] || s;
+        };
+        var formattedTime = function(iso) {
+            if (!iso) return '';
+            var d = new Date(iso);
+            return d.toLocaleString('en-IN', {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'});
+        };
 
         var templateParams = {
             to_email: NOTIFICATION_RECIPIENTS.admin,
-            subject: subject,
-            message_html: htmlBody,
-            user_name: params.userName || 'Unknown',
-            user_tamil_name: params.userTamilName || '',
-            juz: params.juz || '-',
-            week: params.week || '',
-            status: params.status || '',
-            old_status: params.oldStatus || '',
-            timestamp: params.timestamp || new Date().toISOString(),
-            action_type: params.actionType || 'status_update',
-            support_reader: params.supportReader || '',
-            updated_by: params.updatedBy || ''
+            reader_english: params.userName || 'Unknown',
+            reader_tamil: params.userTamilName || '',
+            juz_no: 'Juz ' + (params.juz || '-'),
+            week_date: params.week || '',
+            current_status_english: params.oldStatus || '',
+            current_status_tamil: tamilStatus(params.oldStatus),
+            proposed_status_english: params.status || '',
+            proposed_status_tamil: tamilStatus(params.status),
+            updated_by: params.updatedBy || 'System',
+            date_time_updated: formattedTime(params.timestamp),
+            Dashboard_Link: 'https://tinyurl.com/InainthuOthuvom'
         };
 
         return sendEmail(templateParams);
