@@ -89,12 +89,23 @@
             Dashboard_Link: 'https://tinyurl.com/InainthuOthuvom'
         };
 
-        // Select template based on action type
-        var isExceptionRelated = (params.actionType === 'exception' || params.actionType === 'support_assigned' || params.actionType === 'support_completed');
-        var templateId = isExceptionRelated ? EMAILJS_CONFIG.exceptionTemplateId : EMAILJS_CONFIG.defaultTemplateId;
+        // Select template: exception uses template_j5w4t0k, everything else uses template_hd4fbhs
+        var isException = (params.actionType === 'exception');
+        var templateId = isException ? EMAILJS_CONFIG.defaultTemplateId : EMAILJS_CONFIG.exceptionTemplateId;
 
-        // Add support reader fields for exception template
-        if (isExceptionRelated) {
+        // Add subject line based on action type
+        var subject = 'Inainthu Othuvom - ';
+        switch (params.actionType) {
+            case 'completed': subject += '✅ Completed: Juz ' + (params.juz || '-') + ' - ' + (params.userName || ''); break;
+            case 'exception': subject += '⚠️ Exception Raised: Juz ' + (params.juz || '-') + ' - ' + (params.userName || ''); break;
+            case 'support_assigned': subject += '🤝 Support Assigned: Juz ' + (params.juz || '-') + ' - ' + (params.userName || ''); break;
+            case 'support_completed': subject += '✅ Support Completed: Juz ' + (params.juz || '-') + ' - ' + (params.userName || ''); break;
+            default: subject += '📋 Update: Juz ' + (params.juz || '-') + ' - ' + (params.userName || ''); break;
+        }
+        templateParams.subject = subject;
+
+        // Add support reader fields for non-exception templates (hd4fbhs)
+        if (!isException) {
             templateParams.support_reader_english = params.supportReader || '';
             templateParams.support_reader_tamil = params.supportReader || '';
             templateParams.support_status_english = (params.actionType === 'support_completed' ? 'Completed' : 'Reciting');
