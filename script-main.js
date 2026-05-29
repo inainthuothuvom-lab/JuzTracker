@@ -376,7 +376,46 @@ function submitDirectStatus(statusVal) {
                 }
             } else {
                 showSnackbar("Status updated successfully!", false);
-                // Email notification is handled inside script-supabase.js -> updateWeeklyStatus()
+                
+                // DEBUG: Check if EmailService exists
+                console.log('DEBUG [submitDirectStatus]: EmailService available?', typeof EmailService);
+                console.log('DEBUG [submitDirectStatus]: emailjs available?', typeof emailjs);
+                console.log('DEBUG [submitDirectStatus]: Status set to:', statusVal);
+                
+                if (typeof EmailService !== 'undefined' && typeof emailjs !== 'undefined') {
+                    var debugName = document.getElementById('userSearch').value || 'Unknown';
+                    console.log('DEBUG [submitDirectStatus]: Attempting to send email for:', debugName, 'status:', statusVal);
+                    
+                    var debugEmailData = {
+                        userName: debugName,
+                        userTamilName: (debugName.split(' | ')[1] || debugName),
+                        juz: currentActiveJuzNumber || '-',
+                        week: weekVal,
+                        status: statusVal,
+                        oldStatus: fetchedStateCache ? fetchedStateCache.savedStatus : 'Unknown',
+                        actionType: statusVal === 'Completed' ? 'completed' : 'exception',
+                        timestamp: customTime || new Date().toISOString()
+                    };
+                    console.log('DEBUG [submitDirectStatus]: Email data:', JSON.stringify(debugEmailData));
+                    
+                    // Try direct send
+                    if (statusVal === "Completed" || statusVal === "Exception Raised") {
+                        EmailService.sendAdminNotification(debugEmailData)
+                            .then(function(resp) {
+                                console.log('DEBUG [submitDirectStatus]: EMAIL SENT SUCCESSFULLY!', resp);
+                                alert('Email sent to kmusthak916@gmail.com! Check inbox/spam.');
+                            })
+                            .catch(function(err) {
+                                console.error('DEBUG [submitDirectStatus]: EMAIL FAILED:', err);
+                                alert('Email FAILED! Check console (F12) for details.');
+                            });
+                    }
+                } else {
+                    console.error('DEBUG [submitDirectStatus]: EmailService or emailjs NOT AVAILABLE!');
+                    console.log('EmailService:', typeof EmailService);
+                    console.log('emailjs:', typeof emailjs);
+                    alert('Email service not loaded! Check console (F12).');
+                }
             }
         } else {
             showSnackbar("Failed to update status: " + response.error, true);
