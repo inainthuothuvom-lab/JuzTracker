@@ -24,8 +24,8 @@
     var EMAILJS_CONFIG = {
         publicKey: 'zvp-rNo55tW_eQY6K',   // Get from EmailJS Dashboard
         serviceId: 'service_loz60yl',     // Your Email Service ID
-        defaultTemplateId: 'template_j5w4t0k',   // Default template
-        exceptionTemplateId: 'template_hd4fbhs'  // Exception/support template
+        exceptionTemplateId: 'template_j5w4t0k',   // Template for Exception Raised
+        generalUpdateTemplateId: 'template_hd4fbhs'  // Template for Completed / Support updates
     };
 
     // Admin and select members who receive notifications
@@ -89,9 +89,11 @@
             Dashboard_Link: 'https://tinyurl.com/InainthuOthuvom'
         };
 
-        // Select template: exception uses template_j5w4t0k, everything else uses template_hd4fbhs
+        // Template mapping:
+        //   Exception Raised -> template_j5w4t0k (has support_reader / support_status fields)
+        //   Everything else (Completed, support_assigned, support_completed, status_changed) -> template_hd4fbhs (no support fields)
         var isException = (params.actionType === 'exception');
-        var templateId = isException ? EMAILJS_CONFIG.defaultTemplateId : EMAILJS_CONFIG.exceptionTemplateId;
+        var templateId = isException ? EMAILJS_CONFIG.exceptionTemplateId : EMAILJS_CONFIG.generalUpdateTemplateId;
 
         // Add subject line based on action type
         var subject = 'Inainthu Othuvom - ';
@@ -104,8 +106,8 @@
         }
         templateParams.subject = subject;
 
-        // Add support reader fields for non-exception templates (hd4fbhs)
-        if (!isException) {
+        // Add support reader fields ONLY for Exception template (j5w4t0k has these fields)
+        if (isException) {
             templateParams.support_reader_english = params.supportReader || '';
             templateParams.support_reader_tamil = params.supportReader || '';
             templateParams.support_status_english = (params.actionType === 'support_completed' ? 'Completed' : 'Reciting');
@@ -324,7 +326,7 @@
                 return;
             }
 
-            var tid = templateId || EMAILJS_CONFIG.defaultTemplateId;
+            var tid = templateId || EMAILJS_CONFIG.exceptionTemplateId;
             emailjs.send(EMAILJS_CONFIG.serviceId, tid, templateParams)
                 .then(function(response) {
                     console.log('Email sent successfully!', response.status, response.text);
