@@ -109,7 +109,7 @@
         // Add support reader fields for templates that use support fields (j5w4t0k)
         if (usesSupportTemplate) {
             templateParams.support_reader_english = params.supportReader || '';
-            templateParams.support_reader_tamil = params.supportReader || '';
+            templateParams.support_reader_tamil = params.supportReaderTamil || params.supportReader || '';
             templateParams.support_status_english = (params.actionType === 'support_completed' ? 'Completed' : 'Reciting');
             templateParams.support_status_tamil = (params.actionType === 'support_completed' ? 'நிறைவேற்றப்பட்டது' : 'ஓதிக்கொண்டிருக்கிறார்');
         }

@@ -591,6 +591,7 @@
                                     var supportName = existing.supported_by_name || 'Support Reader';
                                     var supNames = supportName.split('|');
                                     var supEnName = (supNames[0] || 'Support').trim();
+                                    var supTaName = (supNames[1] || supNames[0] || 'Support').trim();
                                     
                                     // Juz number comes from the existing record directly
                                     var juzNum = existing.juz_number ? String(existing.juz_number) : '-';
@@ -603,6 +604,7 @@
                                         oldStatus: oldSupStatus,
                                         actionType: newSupportStatus === 'Completed' ? 'support_completed' : 'status_changed',
                                         supportReader: supEnName,
+                                        supportReaderTamil: supTaName,
                                         timestamp: timestamp
                                     };
                                     if (typeof EmailService !== 'undefined') {
@@ -654,6 +656,7 @@
                                     var taName = (names[1] || names[0] || '').trim();
                                     var supNames = (supName || '').split('|');
                                     var supEnName = (supNames[0] || 'Support').trim();
+                                    var supTaName = (supNames[1] || supNames[0] || 'Support').trim();
                                     var emailData = {
                                         userName: enName,
                                         userTamilName: taName,
@@ -663,6 +666,7 @@
                                         oldStatus: existing.status || '',
                                         actionType: 'support_assigned',
                                         supportReader: supEnName,
+                                        supportReaderTamil: supTaName,
                                         timestamp: timestamp
                                     };
                                     if (typeof EmailService !== 'undefined') {
