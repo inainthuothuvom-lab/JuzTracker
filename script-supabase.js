@@ -592,23 +592,22 @@
                                     var supNames = supportName.split('|');
                                     var supEnName = (supNames[0] || 'Support').trim();
                                     
-                                    _supabase.from('members').select('juz_number').eq('week_start', monday).eq('member_id', userId).single().then(function(rJuz) {
-                                        var juzNum = rJuz.data ? String(rJuz.data.juz_number) : '-';
-                                        var emailData = {
-                                            userName: enName,
-                                            userTamilName: taName,
-                                            juz: juzNum,
-                                            week: formatDateDDMMMYYYY(monday),
-                                            status: newSupportStatus === 'Completed' ? 'Support Completed' : 'Support Updated',
-                                            oldStatus: oldSupStatus,
-                                            actionType: newSupportStatus === 'Completed' ? 'support_completed' : 'status_changed',
-                                            supportReader: supEnName,
-                                            timestamp: timestamp
-                                        };
-                                        if (typeof EmailService !== 'undefined') {
-                                            EmailService.sendAdminNotification(emailData);
-                                        }
-                                    });
+                                    // Juz number comes from the existing record directly
+                                    var juzNum = existing.juz_number ? String(existing.juz_number) : '-';
+                                    var emailData = {
+                                        userName: enName,
+                                        userTamilName: taName,
+                                        juz: juzNum,
+                                        week: formatDateDDMMMYYYY(monday),
+                                        status: newSupportStatus === 'Completed' ? 'Completed' : 'Support Updated',
+                                        oldStatus: oldSupStatus,
+                                        actionType: newSupportStatus === 'Completed' ? 'support_completed' : 'status_changed',
+                                        supportReader: supEnName,
+                                        timestamp: timestamp
+                                    };
+                                    if (typeof EmailService !== 'undefined') {
+                                        EmailService.sendAdminNotification(emailData);
+                                    }
                                 } catch(emailErr) {
                                     console.error('Email notification failed:', emailErr);
                                 }
