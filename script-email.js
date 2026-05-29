@@ -62,8 +62,13 @@
      * @param {Object} params - Email parameters
      */
     function sendAdminNotification(params) {
+        var htmlBody = buildHTMLEmail(params);
+        var subject = 'Inainthu Othuvom - ' + (params.actionType === 'completed' ? '✅ Completed' : params.actionType === 'exception' ? '⚠️ Exception' : params.actionType === 'support_assigned' ? '🤝 Support Assigned' : '📋 Update') + ': Juz ' + (params.juz || '-') + ' - ' + (params.userName || 'Unknown');
+
         var templateParams = {
             to_email: NOTIFICATION_RECIPIENTS.admin,
+            subject: subject,
+            message_html: htmlBody,
             user_name: params.userName || 'Unknown',
             user_tamil_name: params.userTamilName || '',
             juz: params.juz || '-',
