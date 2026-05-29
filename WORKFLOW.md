@@ -8,27 +8,53 @@ This project uses a **beta-first development workflow**:
 - **`beta`** - Active development branch (default working branch)
 - **Feature branches** - For individual features (optional, for larger work)
 
-## Daily Development
+## Daily Development - 3 Clicks to Deploy
 
-### 1. Start Your Day
+All development happens on the `beta` branch. After making changes, here's how to commit and push without using the terminal:
+
+### One-Click Commit & Push (VS Code Built-In)
+
+```
+1. Make your changes in the editor
+2. Press Ctrl + Shift + G  (opens Source Control panel)
+3. Stage files → Commit → Push (see below)
+```
+
+#### Step-by-step:
+
+**Step 1: Open Source Control**
+- Press **`Ctrl + Shift + G`**
+- Or click the Source Control icon in the left sidebar (looks like a branching tree)
+
+**Step 2: Stage Changes**
+- In the **Changes** section, hover over a file and click the **+** to stage it
+- Or click the **+** next to "Changes" to stage everything at once
+
+**Step 3: Commit**
+- Type a message in the text box (e.g., "Fixed layout", "Added new feature")
+- Click the **✓ Commit** button (checkmark icon)
+
+**Step 4: Push to GitHub**
+- After committing, click the **Sync Changes** button in the bottom bar
+- Or click **... menu** → **Push**
+- Once pushed, Netlify auto-deploys to: `https://beta--cute-douhua-6615da.netlify.app`
+
+### Visual Summary
+
+```
+  [Make edits] → [Ctrl+Shift+G] → [Stage (+)] → [Commit (✓)] → [Push/Sync]
+       ↓              ↓               ↓              ↓               ↓
+  Edit index.html  Open panel    Click + on    Type message    Click sync
+  or scripts                     "Changes"     click ✓         button
+```
+
+### Need to make edits but haven't started your day?
+
 ```bash
-# Make sure you're on beta branch
 git checkout beta
-
-# Pull latest changes
-git fetch origin
 git pull origin beta
 ```
-
-### 2. Make Changes
-- Edit files as needed
-- All development happens on the `beta` branch
-- Commit frequently with clear messages
-
-### 3. Push Changes
-```bash
-git push origin beta
-```
+(This is just for starting fresh - first time use only)
 
 ## Releasing to Production
 
