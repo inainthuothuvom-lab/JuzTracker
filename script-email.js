@@ -22,7 +22,7 @@
 (function() {
     // ==================== CONFIGURATION ====================
     var EMAILJS_CONFIG = {
-        publicKey: 'zvp-rNo55tW_eQY6Kom',   // Get from EmailJS Dashboard
+        publicKey: 'zvp-rNo55tW_eQY6K',   // Get from EmailJS Dashboard
         serviceId: 'service_loz60yl',     // Your Email Service ID
         templateId: 'template_j5w4t0k',  // Your Email Template ID
     };
