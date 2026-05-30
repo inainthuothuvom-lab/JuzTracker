@@ -75,8 +75,11 @@ function isPastNextHadiyaStart() {
     if (!hadiya || !hadiya.current || !hadiya.current.nextStartISO) {
         return false;
     }
+    // Only lock if we're viewing the current week (no todayIndex in client - use currentIndex check)
+    if (hadiya.currentIndex !== hadiya.todayIndex) {
+        return false;
+    }
     const nextStart = new Date(hadiya.current.nextStartISO);
-    // nextStartISO is in ISO format - compare with current time in IST
     var now = new Date();
     var IST_OFFSET = 5.5 * 3600000;
     var nowIST = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + IST_OFFSET);

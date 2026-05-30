@@ -223,8 +223,11 @@
                         if (rd <= inputDate && (!latestDate || rd > latestDate)) { latestDate = rd; currentIdx = i; }
                     }
                     if (currentIdx === -1) { if (_ok) _ok(null); return; }
-                    // Find todayIndex
-                    var today = new Date(); today.setHours(0,0,0,0,0);
+                    // Find todayIndex - use IST time for consistency
+                    var now = new Date();
+                    var IST_MS = 5.5 * 3600000;
+                    var nowIST = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + IST_MS);
+                    var today = new Date(nowIST); today.setHours(0,0,0,0,0);
                     var todayIdx = -1; var todayDate = null;
                     for (var i = 0; i < hadData.length; i++) {
                         var rd = ld(hadData[i].start_date); rd.setHours(0,0,0,0,0);
@@ -350,6 +353,7 @@
                             previous: getRowData(currentIdx - 1),
                             next: getRowData(currentIdx + 1),
                             currentIndex: currentIdx,
+                            todayIndex: todayIdx,
                             weekStart: mondayStr,
                             completedList: completedList,
                             recitingList: recitingList,

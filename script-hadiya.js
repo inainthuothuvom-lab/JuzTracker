@@ -133,18 +133,30 @@ function displayHadiya(res) {
     </div>`;
 
     var isCompleted = cur.status === "Completed";
+    var isCurrentWeek = res.currentIndex === res.todayIndex;
     var deadlineDisplay = '';
     var counterCol = '';
     
-    // Only show countdown if not completed
-    if (!isCompleted && cur.deadlineDisplay) {
-        deadlineDisplay = formatDisplayDate(cur.deadlineDisplay);
-        counterCol = `<div class="hadiya-counter-col">
-            <div class="counter-days" id="hadiyaCounterDays">--</div>
-            <div class="counter-hms" id="hadiyaCounterHms">--:--:--</div>
-            <div class="hadiya-deadline-label" style="font-size:0.55rem;color:#8b949e;margin-top:1px;white-space:nowrap;">Deadline: ${deadlineDisplay}</div>
-        </div>`;
-        startHadiyaCountdown(cur.deadlineISO);
+    // Show countdown only for current week and before next Hadiya start
+    if (!isCompleted && cur.deadlineDisplay && isCurrentWeek) {
+        var canShowCountdown = true;
+        if (cur.nextStartISO && cur.nextStartISO.length > 0) {
+            var now = new Date();
+            var IST_MS = 5.5 * 3600000;
+            var nowIST = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + IST_MS);
+            var nextStart = new Date(cur.nextStartISO);
+            canShowCountdown = nowIST.getTime() < nextStart.getTime();
+        }
+        
+        if (canShowCountdown) {
+            deadlineDisplay = formatDisplayDate(cur.deadlineDisplay);
+            counterCol = `<div class="hadiya-counter-col">
+                <div class="counter-days" id="hadiyaCounterDays">--</div>
+                <div class="counter-hms" id="hadiyaCounterHms">--:--:--</div>
+                <div class="hadiya-deadline-label" style="font-size:0.55rem;color:#8b949e;margin-top:1px;white-space:nowrap;">Deadline: ${deadlineDisplay}</div>
+            </div>`;
+            startHadiyaCountdown(cur.deadlineISO);
+        }
     }
 
     var nameRow = `<div class="hadiya-name-row">${nameCol}${counterCol}</div>`;
