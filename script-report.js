@@ -54,6 +54,10 @@ function openReportModal() {
 let reportEditUserId = null;
 
 function openReportEditModal(userId, name, currentStatus, dateLogged) {
+    if (!reportIsEditable) {
+        showSnackbar("Status updates are locked for this week.", true);
+        return;
+    }
     reportEditUserId = userId;
     document.getElementById('reportEditName').innerText = name;
     document.getElementById('reportEditCurrentStatus').innerText = currentStatus === "Not Started" ? "Reciting" : currentStatus;
@@ -73,6 +77,11 @@ function closeReportEditModal() {
 function submitReportEditStatus(newStatus) {
     if (!reportEditUserId) return;
     if (!rawReportData) return;
+    
+    if (!reportIsEditable) {
+        showSnackbar("Status updates are locked for this week.", true);
+        return;
+    }
     const weekVal = currentReportWeek || document.getElementById('dateInput').value;
     const btns = document.querySelectorAll('#reportEditModal .status-btn');
     btns.forEach(b => b.disabled = true);
@@ -176,6 +185,10 @@ function updateBulkApplyBtn() {
 function openBulkStep2() {
     if (selectedUserIds.size === 0) return;
     if (!rawReportData) return;
+    if (!reportIsEditable) {
+        showSnackbar("Status updates are locked for this week.", true);
+        return;
+    }
     bulkSelectedStatus = '';
     const names = [];
     rawReportData.forEach(r => {
@@ -208,6 +221,10 @@ function selectBulkStatus(status) {
 }
 function openBulkConfirm() {
     if (!rawReportData) return;
+    if (!reportIsEditable) {
+        showSnackbar("Status updates are locked for this week.", true);
+        return;
+    }
     const weekVal = currentReportWeek || document.getElementById('dateInput').value;
     const names = [];
     rawReportData.forEach(r => {

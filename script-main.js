@@ -38,6 +38,8 @@ function resetAssignmentDetails() {
     currentActiveJuzNumber = null;
     fetchedStateCache = null;
     document.getElementById('hadiyaBox').classList.add('hadiya-loading');
+    const nextHadiyaLockBanner = document.getElementById('nextHadiyaLockBanner');
+    if (nextHadiyaLockBanner) nextHadiyaLockBanner.style.display = "none";
     var d = document.getElementById('dateInput').value;
     if (d) fetchHadiyaDetails(d);
 }
@@ -66,6 +68,14 @@ function isSelectedDateInFuture() {
     today.setHours(0,0,0,0,0);
     
     return selectedDate > today;
+}
+
+function isPastNextHadiyaStart() {
+    if (!currentHadiyaDetails || !currentHadiyaDetails.next || !currentHadiyaDetails.next.nextStartISO) {
+        return false;
+    }
+    const nextStart = new Date(currentHadiyaDetails.next.nextStartISO);
+    return new Date() >= nextStart;
 }
 
 function configureStatusEditLock(statusVal, resData) {
@@ -99,6 +109,22 @@ function configureStatusEditLock(statusVal, resData) {
     }
 
     futureLockBanner.style.display = "none";
+     const nextHadiyaLockBanner = document.getElementById('nextHadiyaLockBanner');
+
+     if (isPastNextHadiyaStart()) {
+         unlockLink.style.display = "none";
+         buttonsGroup.style.display = "none";
+         textDisplay.style.display = "none";
+         mainSupportWidget.style.display = "none";
+         if (nextHadiyaLockBanner) {
+             nextHadiyaLockBanner.innerHTML = "🔒 Next Hadiya has started. Status updates are now locked for this week.<br>அடுத்த ஹதியா தொடங்கியுள்ளது. இந்த வாரத்தின் நிலை புதுப்பிக்க முடியாமல்.";
+             nextHadiyaLockBanner.style.display = "block";
+         }
+         if (mainTimeToggle) { mainTimeToggle.style.display = 'none'; mainTimeRow.style.display = 'none'; mainTimeToggle.classList.remove('active'); }
+         if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
+         updateStatusBoxColorByValue("Reciting");
+         return;
+     }
 
     if (!statusVal || statusVal === "Not Started") {
         statusVal = "Reciting";
@@ -169,6 +195,10 @@ function configureStatusEditLock(statusVal, resData) {
 }
 
 function enableStatusEditing() {
+    if (isPastNextHadiyaStart()) {
+        showSnackbar("Next Hadiya has started. Status updates are locked.", true);
+        return;
+    }
     document.getElementById('unlockBtn').style.display = "none";
     document.getElementById('closeEditBtn').style.display = "inline-block";
     document.getElementById('statusButtonsGroup').style.display = "flex";
@@ -193,6 +223,10 @@ function cancelStatusEditing() {
 }
 
 function enableSupportStatusEditing() {
+    if (isPastNextHadiyaStart()) {
+        showSnackbar("Next Hadiya has started. Support status updates are locked.", true);
+        return;
+    }
     document.getElementById('supportButtonsGroup').style.display = "flex";
     document.getElementById('unlockSupportBtn').style.display = "none";
     document.getElementById('closeSupportEditBtn').style.display = "inline-block";
@@ -351,6 +385,11 @@ function submitDirectStatus(statusVal) {
         return;
     }
 
+    if (isPastNextHadiyaStart()) {
+        showSnackbar("Next Hadiya has started. Status updates are locked for this week.", true);
+        return;
+    }
+
     const compBtn = document.getElementById('completedActionBtn');
     const recBtn = document.getElementById('recitingActionBtn');
     const excBtn = document.getElementById('exceptionActionBtn');
@@ -385,6 +424,10 @@ function submitDirectStatus(statusVal) {
 }
 
 function submitSupportStatusDirect(newSupStatus) {
+    if (isPastNextHadiyaStart()) {
+        showSnackbar("Next Hadiya has started. Support status updates are locked.", true);
+        return;
+    }
     const dateInputVal = document.getElementById('dateInput').value;
     const weekVal = (currentHadiyaDetails && currentHadiyaDetails.weekStart) || dateInputVal;
     const compBtn = document.getElementById('supportCompletedBtn');
@@ -440,6 +483,10 @@ function openReassignModal() {
 }
 
 function submitReassignment() {
+    if (isPastNextHadiyaStart()) {
+        showSnackbar("Next Hadiya has started. Reassignment is locked.", true);
+        return;
+    }
     const supportId = document.getElementById('supportUserSelect').value;
     const dateInputVal = document.getElementById('dateInput').value;
     const weekVal = (currentHadiyaDetails && currentHadiyaDetails.weekStart) || dateInputVal;

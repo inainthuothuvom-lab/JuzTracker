@@ -411,7 +411,7 @@
                     }
                     var monday = fridayOf(adjDate);
                     if (!monday) { if (_ok) _ok({ error: "Invalid date." }); return; }
-                    var editable = monday === correctMonday;
+                    var editable = monday === correctMonday && isBeforeNextStart;
                     // Fetch report data
                     _supabase.from('weekly_status').select('member_id,juz_number,member_name,status,completed_date_time,exception_raised_time,supported_by_name,support_status').eq('week_start', monday).then(function(rStat) {
                         if (!rStat.data || rStat.data.length === 0) {
