@@ -243,6 +243,8 @@
                         var hadiyaStatus = row.status || 'Pending';
                         var rawDeadline = row.countdown_end_moment || '';
                         var rawNextStart = row.next_hadiya_start_moment || '';
+                        var rawDedPurposeEn = row.dedicated_purpose_english || '';
+                        var rawDedPurposeTa = row.dedicated_purpose_tamil || '';
                         function parseDT(str) {
                             var s = String(str);
                             var hasTZ = s.endsWith('Z') || /[\+-]\d{2}:\d{2}$/.test(s.replace(' ', 'T'));
@@ -258,12 +260,17 @@
                         function fmtDL(d) {
                             return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
                         }
-                        var deadlineISO = '', deadlineDisplay = '', nextStartISO = '', nextStartDisplay = '';
+                        var deadlineISO = '', deadlineDisplay = '', nextStartISO = '', nextStartDisplay = '', purposeEn = '', purposeTa = '';
                         if (rawDeadline) { var pd = parseDT(rawDeadline); if (!isNaN(pd.getTime())) { deadlineISO = pd.toISOString(); deadlineDisplay = fmtDL(pd); } }
                         if (rawNextStart) { var pn = parseDT(rawNextStart); if (!isNaN(pn.getTime())) { nextStartISO = pn.toISOString(); nextStartDisplay = fmtDL(pn); } }
+                        if (rawDedPurposeEn) { purposeEn = rawDedPurposeEn; }
+                        if (rawDedPurposeTa) { purposeTa = rawDedPurposeTa; }
                         return {
                             en: nominatedTo, ta: nominatedToTa, range: rangeStr,
                             dedicatedTo: dedicatedTo, dedicatedToTa: dedicatedToTa,
+                            dedicatedToEn: dedicatedTo,
+                            dedicatedPurposeEn: purposeEn,
+                            dedicatedPurposeTa: purposeTa,
                             status: hadiyaStatus,
                             weekEndDate: endDate.toISOString(),
                             deadlineISO: deadlineISO,
@@ -276,26 +283,33 @@
                     // Read nextStart for cutoff
                     var curRow = getRowData(currentIdx);
                     if (!curRow) { if (_ok) _ok(null); return; }
-                    // Use DB nextStartISO for cutoff
+                    // Use DB nextStartISO for cutoff - compare in IST
                     if (inputDate.getDay() === 5 && curRow && curRow.nextStartISO) {
+                        var now = new Date();
+                        var IST_MS = 5.5 * 3600000;
+                        var nowIST = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + IST_MS);
                         var _cutoff = new Date(curRow.nextStartISO);
-                        if (new Date() < _cutoff) inputDate.setDate(inputDate.getDate() - 1);
+                        if (nowIST.getTime() < _cutoff.getTime()) inputDate.setDate(inputDate.getDate() - 1);
                         // Re-evaluate
                         currentIdx = -1; latestDate = null;
                         for (var i = 0; i < hadData.length; i++) {
                             var rd = new Date(hadData[i].start_date); rd.setHours(0,0,0,0,0);
                             if (rd <= inputDate && (!latestDate || rd > latestDate)) { latestDate = rd; currentIdx = i; }
                         }
-                        if (currentIdx === -1) { if (_ok) _ok(null); return; }
+                        if (currentIdx === -1) { if(_ok) _ok(null); return; }
                         curRow = getRowData(currentIdx);
-                        if (!curRow) { if (_ok) _ok(null); return; }
+                        if (!curRow) { if(_ok) _ok(null); return; }
                     }
                     // Auto-advance (only for current-week view)
                     if (currentIdx === todayIdx) {
                         var curStatus = hadData[currentIdx].status || 'Pending';
-                        var deadlinePassed = curRow.deadlineISO && new Date() >= new Date(curRow.deadlineISO);
+                        var now = new Date();
+                        var IST_MS = 5.5 * 3600000;
+                        var nowIST = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + IST_MS);
+                        var deadlinePassed = curRow.deadlineISO && (nowIST.getTime() >= new Date(curRow.deadlineISO).getTime());
                         if ((curStatus === 'Completed' || deadlinePassed) && curRow && curRow.nextStartISO) {
-                            if (new Date() >= new Date(curRow.nextStartISO) && currentIdx + 1 < hadData.length) {
+                            var nextStartParsed = new Date(curRow.nextStartISO);
+                            if (nextStartParsed.getTime() > 0 && (nowIST.getTime() >= nextStartParsed.getTime()) && currentIdx + 1 < hadData.length) {
                                 currentIdx++;
                                 curRow = getRowData(currentIdx);
                                 if (!curRow) { if (_ok) _ok(null); return; }
@@ -719,14 +733,19 @@
             // ----------------------------------------------------------------
             // updateHadiyaDedication
             // ----------------------------------------------------------------
-            updateHadiyaDedication: function(selectedDate, dedicationEn, dedicationTa) {
+            updateHadiyaDedication: function(selectedDate, dedicationEn, dedicationTa, purposeEn, purposeTa) {
                 var self = this;
                 try {
                     var friday = normalizeToFriday(selectedDate);
                     if (!friday) { if (_ok) _ok({ success: false, error: 'Invalid date' }); return this; }
                     _supabase.from('hadiya_details').select('start_date').lte('start_date', friday).order('start_date', { ascending: false }).limit(1).single().then(function(rGet) {
                         if (!rGet.data) { if (_ok) _ok({ success: false, error: 'Hadiya row not found' }); return; }
-                        _supabase.from('hadiya_details').update({ dedicated_to: dedicationEn, dedicated_to_ta: dedicationTa }).eq('start_date', rGet.data.start_date).then(function(rUp) {
+                        _supabase.from('hadiya_details').update({ 
+                            dedicated_to: dedicationEn, 
+                            dedicated_to_ta: dedicationTa,
+                            dedicated_purpose_english: purposeEn,
+                            dedicated_purpose_tamil: purposeTa
+                        }).eq('start_date', rGet.data.start_date).then(function(rUp) {
                             if (rUp.error) { if (_ok) _ok({ success: false, error: rUp.error.message }); return; }
                             if (_ok) _ok({ success: true });
                         });

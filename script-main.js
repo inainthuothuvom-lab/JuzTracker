@@ -71,11 +71,16 @@ function isSelectedDateInFuture() {
 }
 
 function isPastNextHadiyaStart() {
-    if (!currentHadiyaDetails || !currentHadiyaDetails.current || !currentHadiyaDetails.current.nextStartISO) {
+    const hadiya = currentHadiyaDetails;
+    if (!hadiya || !hadiya.current || !hadiya.current.nextStartISO) {
         return false;
     }
-    const nextStart = new Date(currentHadiyaDetails.current.nextStartISO);
-    return new Date() >= nextStart;
+    const nextStart = new Date(hadiya.current.nextStartISO);
+    // nextStartISO is in ISO format - compare with current time in IST
+    var now = new Date();
+    var IST_OFFSET = 5.5 * 3600000;
+    var nowIST = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + IST_OFFSET);
+    return nextStart.getTime() > 0 && nowIST.getTime() >= nextStart.getTime();
 }
 
 function configureStatusEditLock(statusVal, resData) {

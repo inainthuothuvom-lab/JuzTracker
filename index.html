@@ -279,17 +279,17 @@
 </div>
 
 <div id="dedicationModal" class="modal">
-    <div class="modal-content" style="max-width:400px;">
+    <div class="modal-content" style="max-width:500px;max-height:80vh;overflow-y:auto;">
         <div class="modal-header" style="border-bottom:none; margin-bottom:5px; padding-bottom:0;">
-            <span class="modal-title" style="font-size:1rem; color:#d29922;">🎯 Change Dedication <br> அர்ப்பணிப்பை மாற்ற</span>
+            <span class="modal-title" style="font-size:1rem; color:#d29922;">🎯 Add Dedication <br> அர்ப்பணிப்பை சேர்க்க</span>
             <span class="close-btn" onclick="closeDedicationModal()">&times;</span>
         </div>
-        <div style="font-size:0.8rem; color:#8b949e; margin-bottom:10px;">Select someone or type a custom name <br> ஒருவரைத் தேர்ந்தெடுக்கவும் அல்லது பெயரை உள்ளிடவும்</div>
-        <select id="dedicationUserSelect" onchange="onDedicationUserSelect()" style="margin-bottom:8px;">
-            <option value="">-- Select / தேர்ந்தெடு --</option>
-        </select>
-        <div style="font-size:0.75rem; color:#8b949e; text-align:center; margin:4px 0;">— OR / அல்லது —</div>
-        <input type="text" id="dedicationCustomInput" placeholder="Custom name / பெயர்..." oninput="onDedicationCustomInput()" style="margin-top:4px;">
+        <div style="font-size:0.8rem; color:#8b949e; margin-bottom:10px;">Add one or more dedications with purpose <br> நோக்கத்தை கொண்ட பெயர்களை சேர்க்கவும்</div>
+        
+        <div id="dedicationListContainer"></div>
+        
+        <button class="btn-secondary" onclick="addDedicationEntry()" style="margin-top:8px; padding:8px; font-size:0.85rem; width:100%;">+ Add New Dedication</button>
+        
         <button id="saveDedicationBtn" onclick="saveDedication()" style="margin-top:10px; padding:12px; background:#bb8009;">Save Dedication <br> அர்பணிப்புச் சேமி</button>
         <button class="btn-secondary" style="margin-top:8px; padding:10px;" onclick="closeDedicationModal()">Back ←<br> பின்</button>
     </div>
@@ -306,7 +306,7 @@
             <div style="font-size:0.8rem; color:#8b949e; margin-top:4px;">Status: <span id="hadiyaEditStatus"></span></div>
         </div>
         <button class="btn-status-completed status-btn" onclick="submitHadiyaEditComplete()" style="margin-top:0; padding:12px;">✅ Completed <br> நிறைவேறியது</button>
-        <button class="btn-status-reciting status-btn" onclick="openHadiyaEditDedication()" style="margin-top:8px; padding:12px;">🎯 Change Dedication <br> அர்ப்பணிப்பை மாற்று </button>
+        <button class="btn-status-reciting status-btn" onclick="openHadiyaEditDedication()" style="margin-top:8px; padding:12px;">🎯 Add Dedication <br> அர்ப்பணிப்பை சேர்க்க </button>
         <hr style="border:none;border-top:1px solid #21262d;margin:12px 0;">
         <div style="font-size:0.8rem;color:#8b949e;margin-bottom:8px;font-weight:600;">Schedule Times / நேர அமைப்புகள்</div>
         <div id="hadiyaScheduleTimeAlert" style="font-size:0.75rem;color:#f87171;margin-bottom:6px;"></div>
