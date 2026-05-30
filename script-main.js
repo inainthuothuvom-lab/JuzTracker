@@ -71,10 +71,10 @@ function isSelectedDateInFuture() {
 }
 
 function isPastNextHadiyaStart() {
-    if (!currentHadiyaDetails || !currentHadiyaDetails.next || !currentHadiyaDetails.next.nextStartISO) {
+    if (!currentHadiyaDetails || !currentHadiyaDetails.current || !currentHadiyaDetails.current.nextStartISO) {
         return false;
     }
-    const nextStart = new Date(currentHadiyaDetails.next.nextStartISO);
+    const nextStart = new Date(currentHadiyaDetails.current.nextStartISO);
     return new Date() >= nextStart;
 }
 
@@ -95,6 +95,9 @@ function configureStatusEditLock(statusVal, resData) {
 
     closeEditLink.style.display = "none";
     closeSupportEditLink.style.display = "none";
+    
+    const nextHadiyaLockBanner = document.getElementById('nextHadiyaLockBanner');
+    if (nextHadiyaLockBanner) nextHadiyaLockBanner.style.display = "none";
 
     if (isSelectedDateInFuture()) {
         unlockLink.style.display = "none";
@@ -109,22 +112,21 @@ function configureStatusEditLock(statusVal, resData) {
     }
 
     futureLockBanner.style.display = "none";
-     const nextHadiyaLockBanner = document.getElementById('nextHadiyaLockBanner');
-
-     if (isPastNextHadiyaStart()) {
-         unlockLink.style.display = "none";
-         buttonsGroup.style.display = "none";
-         textDisplay.style.display = "none";
-         mainSupportWidget.style.display = "none";
-         if (nextHadiyaLockBanner) {
-             nextHadiyaLockBanner.innerHTML = "🔒 Next Hadiya has started. Status updates are now locked for this week.<br>அடுத்த ஹதியா தொடங்கியுள்ளது. இந்த வாரத்தின் நிலை புதுப்பிக்க முடியாமல்.";
-             nextHadiyaLockBanner.style.display = "block";
-         }
-         if (mainTimeToggle) { mainTimeToggle.style.display = 'none'; mainTimeRow.style.display = 'none'; mainTimeToggle.classList.remove('active'); }
-         if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
-         updateStatusBoxColorByValue("Reciting");
-         return;
-     }
+    
+    if (isPastNextHadiyaStart()) {
+        unlockLink.style.display = "none";
+        buttonsGroup.style.display = "none";
+        textDisplay.style.display = "none";
+        mainSupportWidget.style.display = "none";
+        if (nextHadiyaLockBanner) {
+            nextHadiyaLockBanner.innerHTML = "🔒 Next Hadiya has started. Status updates are now locked for this week.<br>அடுத்த ஹதியா தொடங்கியுள்ளது. இந்த வாரத்தின் நிலை புதுப்பிக்க முடியாமல்.";
+            nextHadiyaLockBanner.style.display = "block";
+        }
+        if (mainTimeToggle) { mainTimeToggle.style.display = 'none'; mainTimeRow.style.display = 'none'; mainTimeToggle.classList.remove('active'); }
+        if (supportTimeToggle) { supportTimeToggle.style.display = 'none'; supportTimeRow.style.display = 'none'; supportTimeToggle.classList.remove('active'); }
+        updateStatusBoxColorByValue("Reciting");
+        return;
+    }
 
     if (!statusVal || statusVal === "Not Started") {
         statusVal = "Reciting";
